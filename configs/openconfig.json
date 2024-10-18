@@ -1,0 +1,14 @@
+{
+    "filter_patterns": [
+        "/usr/share/vim",
+        "/lib/",
+        "/proc/",
+        ".swp",
+        ".swx",
+        ".so",
+        "docker",
+        "dev/null",
+        ".vscode",
+        "hpage_pmd_size"
+    ]
+}
