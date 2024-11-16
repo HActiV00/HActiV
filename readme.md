@@ -22,11 +22,11 @@ sudo go run main.go <function_number(s)>
 
 ## 옵션 설명
 
-1. execv 시스템 콜 모니터링
+1. 시스템 메트릭스 모니터링
 
-2. 로그 파일 접근 모니터링
+2. execv 시스템 콜 모니터링
 
-3. 로그 파일 삭제/제거 모니터링
+3. 파일 삭제 모니터링
 
 4. 메모리 모니터링
 
@@ -38,4 +38,9 @@ sudo go run main.go <function_number(s)>
 ```bash
 sudo go run main.go 1
 sudo go run main.go 1 6
+```
+
+### 기본 설정파일:
+```bash
+/etc/HActiV
 ```

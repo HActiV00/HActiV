@@ -1,29 +1,43 @@
+//Copyright Authors of HActiV
+
+// docker package for docker information
 package docker
 
 import (
-	"HActiV/pkg/utils"
+	"context"
 	"fmt"
+	"log"
 	"os"
-	"sync"
+	"os/signal"
+	"syscall"
+
+	"github.com/docker/docker/api/types/events"
+	"github.com/docker/docker/client"
 )
 
-type SafeContainer struct {
-	mu    sync.RWMutex
-	value map[uint64]utils.ContainerInfo
-}
+// Monitoring Container start & die using docker API
+func MonitorDockerEvents() {
 
-var container SafeContainer // 전역 변수로 선언
-func SetContainer() {
-	container.mu.Lock()
-	defer container.mu.Unlock()
-	containerNamespaces, err := utils.GetAllContainerNamespaces()
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to get container namespaces: %s\n", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
-	container.value = containerNamespaces
-}
 
-func GetContainer() map[uint64]utils.ContainerInfo {
-	return container.value
+	msgChan, errChan := cli.Events(context.Background(), events.ListOptions{})
+
+	for {
+		select {
+		case event := <-msgChan:
+			if event.Type == events.ContainerEventType {
+				switch event.Action {
+				case "start", "die":
+					SetContainer()
+				}
+			}
+		case err := <-errChan:
+			fmt.Println("Docker API Error", err)
+		}
+	}
 }

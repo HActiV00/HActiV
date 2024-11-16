@@ -1,17 +1,22 @@
+// Copyright Authors of HActiV
+
 package tools
 
 import (
+	"HActiV/configs"
 	"HActiV/pkg/docker"
 	"HActiV/pkg/utils"
 	bpfcode "HActiV/tools/bpf"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
-	"regexp"
 	"strings"
 	"sync"
 	"syscall"
@@ -21,104 +26,325 @@ import (
 	bcc "github.com/iovisor/gobpf/bcc"
 )
 
-func NetworkMonitoring() {
-	fmt.Println("Starting automatic container network traffic monitoring...")
-
-	ContainerNamespaces := docker.GetContainer()
-
-	if len(ContainerNamespaces) < 2 {
-		fmt.Println("No containers to monitor. Exiting...")
-		return
-	}
-
-	// Create a context to manage graceful shutdown
-	ctx, cancel := context.WithCancel(context.Background())
-	go MonitorContainer(ctx, ContainerNamespaces)
-
-	// Handle graceful shutdown on Ctrl+C
-	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
-
-	// Block until a shutdown signal is received
-	<-shutdown
-	fmt.Println("Shutdown signal received, stopping monitoring...")
-
-	// Cancel the context to signal goroutines to stop
-	cancel()
-
-	fmt.Println("All monitoring stopped. Exiting...")
-}
-
 type Event struct {
 	Pid         uint32
 	SrcIP       uint32
 	DstIP       uint32
 	Protocol    uint8
 	PacketCount uint64
+	MntNs       uint32
+	PacketSize  uint32
+	DstPort     uint16
 }
 
-// Docker 서브넷 및 호스트 IP 정보
-var dockerSubnets = []string{
-	"172.17.0.0/16", // Docker 기본 네트워크 서브넷
-	// 추가적인 Docker 서브넷이 있으면 여기에 포함
+type IPInfo struct {
+	Organization string    `json:"organization"`
+	LastUpdated  time.Time `json:"last_updated"`
 }
 
-var hostIP = "192.168.219.170" // 호스트 IP를 정확하게 설정
+type GeoJSResponse struct {
+	Organization string `json:"organization"`
+	IP           string `json:"ip"`
+}
 
-// handleEvent는 eBPF에서 캡처된 네트워크 트래픽 이벤트를 처리합니다.
+type PathNode struct {
+	ID   string `json:"id"`
+	Type string `json:"type"`
+}
+
+type PathLink struct {
+	Source string `json:"source"`
+	Target string `json:"target"`
+}
+
+type TrafficPath struct {
+	Nodes []PathNode `json:"nodes"`
+	Links []PathLink `json:"links"`
+}
+
+type ContainerStats struct {
+	PacketCount uint64
+	TotalSize   uint64
+}
+
+var (
+	dockerSubnets            []string
+	hostIP                   string
+	gatewayIP                string
+	dnsServers               []string
+	verifiedIPRanges         = []string{"91.189.88.0/21"}
+	ipInfoMap                = make(map[string]IPInfo)
+	ipInfoFile               = "ip_info.json"
+	ipInfoMutex              sync.RWMutex
+	monitoredContainers      = make(map[uint64]context.CancelFunc)
+	monitoredContainersMutex sync.Mutex
+	containerStats           = make(map[string]*ContainerStats)
+	containerStatsMutex      sync.RWMutex
+)
+
+const (
+	cacheValidityPeriod = 24 * time.Hour
+)
+
+func init() {
+	loadIPInfoFromFile()
+	detectNetworkInfo()
+}
+
+func loadIPInfoFromFile() {
+	data, err := ioutil.ReadFile(ipInfoFile)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			log.Printf("Error reading IP info file: %v", err)
+		}
+		return
+	}
+
+	ipInfoMutex.Lock()
+	defer ipInfoMutex.Unlock()
+
+	err = json.Unmarshal(data, &ipInfoMap)
+	if err != nil {
+		log.Printf("Error unmarshaling IP info: %v", err)
+	}
+}
+
+func saveIPInfoToFile() {
+	ipInfoMutex.RLock()
+	defer ipInfoMutex.RUnlock()
+
+	data, err := json.MarshalIndent(ipInfoMap, "", "  ")
+	if err != nil {
+		log.Printf("Error marshaling IP info: %v", err)
+		return
+	}
+
+	err = ioutil.WriteFile(ipInfoFile, data, 0644)
+	if err != nil {
+		log.Printf("Error writing IP info file: %v", err)
+	}
+}
+
+func detectNetworkInfo() {
+	detectHostIP()
+	detectDockerSubnets()
+	detectGatewayIP()
+	detectDNSServers()
+}
+
+func detectHostIP() {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		log.Fatalf("Error getting interface addresses: %v", err)
+	}
+
+	for _, addr := range addrs {
+		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				hostIP = ipnet.IP.String()
+				log.Printf("Detected host IP: %s", hostIP)
+				return
+			}
+		}
+	}
+
+	log.Fatalf("Could not detect host IP")
+}
+
+func detectDockerSubnets() {
+	cmd := exec.Command("docker", "network", "ls", "--format", "{{.Name}}")
+	output, err := cmd.Output()
+	if err != nil {
+		log.Printf("Error listing Docker networks: %v", err)
+		return
+	}
+
+	networks := strings.Split(strings.TrimSpace(string(output)), "\n")
+	for _, network := range networks {
+		if network == "bridge" {
+			inspectCmd := exec.Command("docker", "network", "inspect", network, "--format", "{{range .IPAM.Config}}{{.Subnet}}{{end}}")
+			subnetOutput, err := inspectCmd.Output()
+			if err != nil {
+				log.Printf("Error inspecting Docker network %s: %v", network, err)
+				continue
+			}
+			subnet := strings.TrimSpace(string(subnetOutput))
+			if subnet != "" {
+				dockerSubnets = append(dockerSubnets, subnet)
+			}
+		}
+	}
+
+	log.Printf("Detected Docker subnets: %v", dockerSubnets)
+}
+
+func detectGatewayIP() {
+	cmd := exec.Command("ip", "route", "show", "default")
+	output, err := cmd.Output()
+	if err != nil {
+		log.Printf("Error detecting gateway IP: %v", err)
+		return
+	}
+
+	fields := strings.Fields(string(output))
+	if len(fields) > 2 {
+		gatewayIP = fields[2]
+		log.Printf("Detected gateway IP: %s", gatewayIP)
+	}
+}
+
+func detectDNSServers() {
+	content, err := os.ReadFile("/etc/resolv.conf")
+	if err != nil {
+		log.Printf("Error reading /etc/resolv.conf: %v", err)
+		return
+	}
+
+	lines := strings.Split(string(content), "\n")
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		if len(fields) > 1 && fields[0] == "nameserver" {
+			dnsServers = append(dnsServers, fields[1])
+		}
+	}
+
+	log.Printf("Detected DNS servers: %v", dnsServers)
+}
+
+func NetworkMonitoring() {
+	fmt.Println("Starting network monitoring. Waiting for containers...")
+	fmt.Println("Starting automatic container network traffic monitoring...")
+
+	// Network 규칙 초기화 및 설정
+	if err := configs.SetupRules("network"); err != nil {
+		log.Fatalf("Failed to setup network rules: %v", err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	go monitorTraffic(ctx)
+
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
+	<-shutdown
+	fmt.Println("Shutdown signal received, stopping monitoring...")
+	cancel()
+	fmt.Println("All monitoring stopped. Exiting...")
+	saveIPInfoToFile()
+}
+
+// func monitorContainers(ctx context.Context) {
+// 	for {
+// 		select {
+// 		case <-ctx.Done():
+// 			return
+// 		default:
+// 			containerNamespaces := docker.GetContainer()
+// 			if len(containerNamespaces) == 0 {
+// 				log.Println("No containers detected. Continuing to monitor...")
+// 				time.Sleep(5 * time.Second)
+// 				continue
+// 			}
+
+// 			monitoredContainersMutex.Lock()
+// 			// Start monitoring for new containers
+// 			for namespace, containerInfo := range containerNamespaces {
+// 				if _, exists := monitoredContainers[namespace]; !exists {
+// 					containerCtx, containerCancel := context.WithCancel(ctx)
+// 					monitoredContainers[namespace] = containerCancel
+// 					go MonitorContainer(containerCtx, containerInfo)
+// 				}
+// 			}
+
+// 			// Stop monitoring for removed containers
+// 			for namespace, cancelFunc := range monitoredContainers {
+// 				if _, exists := containerNamespaces[namespace]; !exists {
+// 					cancelFunc()
+// 					delete(monitoredContainers, namespace)
+// 				}
+// 			}
+// 			monitoredContainersMutex.Unlock()
+
+// 			time.Sleep(5 * time.Second)
+// 		}
+// 	}
+// }
+
 func handleEvent(data unsafe.Pointer) {
 	event := (*Event)(data)
 
-	// SrcIP와 DstIP의 트래픽 유형을 분류 (Canonical 트래픽은 무시)
-	srcType := ClassifyTraffic(InetNtoa(event.SrcIP), dockerSubnets, hostIP)
-	dstType := ClassifyTraffic(InetNtoa(event.DstIP), dockerSubnets, hostIP)
+	srcIP := InetNtoa(event.SrcIP)
+	dstIP := InetNtoa(event.DstIP)
+	srcType := ClassifyTraffic(srcIP, dockerSubnets, hostIP)
+	dstType := ClassifyTraffic(dstIP, dockerSubnets, hostIP)
 
-	// srcType 또는 dstType이 빈 문자열(Canonical 트래픽)일 경우 무시
 	if srcType == "" || dstType == "" {
-		return // Canonical 트래픽은 무시
-	}
-	inode, err := utils.GetNamespaceInode(event.Pid)
-	if err != nil {
-		fmt.Printf("failed to get namespace for PID %d: %s\n", event.Pid, err)
 		return
 	}
-	containerNamespaces := docker.GetContainer()
 
-	containerInfo, exists := containerNamespaces[inode]
+	containerNamespaces := docker.GetContainer()
+	containerInfo, exists := containerNamespaces[uint64(event.MntNs)]
 	if !exists {
 		return
 	}
 
-	// 프로토콜 이름 가져오기
 	protocolName := GetProtocolName(event.Protocol)
-	utils.DataSend("Network_traffic", time.Now().Format(time.RFC3339), containerInfo.Name, InetNtoa(event.SrcIP), srcType, InetNtoa(event.DstIP), dstType, protocolName, int(event.PacketCount))
 
-	// 분류된 트래픽 정보를 출력
-	fmt.Printf("%s | %s SRC_IP: %s (%s), DST_IP: %s (%s), PROTOCOL: %s, PACKETS: %d\n", time.Now().Format(time.RFC3339), containerInfo.Name,
-		InetNtoa(event.SrcIP), srcType, InetNtoa(event.DstIP), dstType, protocolName, event.PacketCount)
+	// 이벤트 데이터 생성
+	eventData := map[string]interface{}{
+		"src_ip":       srcIP,
+		"dst_ip":       dstIP,
+		"protocol":     protocolName,
+		"packet_count": int(event.PacketCount),
+	}
+
+	// 규칙 적용을 위한 매칭 검사
+	if !configs.ParseRules("Network_traffic", eventData, "network") {
+		// "ignore" action인 경우 출력하지 않음
+		return
+	}
+
+	path := generateTrafficPath(srcIP, srcType, dstIP, dstType)
+	pathJSON, err := json.Marshal(path)
+	if err != nil {
+		log.Printf("Error marshaling path to JSON: %v", err)
+		return
+	}
+
+	updateContainerStats(containerInfo.Name, event.PacketSize)
+
+	containerStatsMutex.RLock()
+	stats := containerStats[containerInfo.Name]
+	containerStatsMutex.RUnlock()
+
+	utils.DataSend("Network_traffic", time.Now().Format(time.RFC3339), containerInfo.Name, srcIP, srcType, dstIP, dstType, protocolName, int(event.PacketCount), string(pathJSON))
+
+	fmt.Printf("%s | %s PATH: %s, SRC_IP: %s (%s), DST_IP: %s (%s), PROTOCOL: %s, PACKETS: %d, SIZE: %d bytes, TOTAL_PACKETS: %d, TOTAL_SIZE: %d bytes\n",
+		time.Now().Format(time.RFC3339), containerInfo.Name, string(pathJSON),
+		srcIP, srcType, dstIP, dstType, protocolName, event.PacketCount, event.PacketSize,
+		stats.PacketCount, stats.TotalSize)
 }
 
-func MonitorContainer(ctx context.Context, Container map[uint64]utils.ContainerInfo) {
+func updateContainerStats(containerName string, packetSize uint32) {
+	containerStatsMutex.Lock()
+	defer containerStatsMutex.Unlock()
 
-	bpfModule := utils.LoadBPFModule(bpfcode.NetworkCcode)
-	defer bpfModule.Close()
-
-	kprobe, err := bpfModule.LoadKprobe("kprobe__ip_rcv")
-	if err != nil {
-		log.Fatalf("Failed to load kprobe: %v", err)
+	if stats, exists := containerStats[containerName]; exists {
+		stats.PacketCount++
+		stats.TotalSize += uint64(packetSize)
+	} else {
+		containerStats[containerName] = &ContainerStats{
+			PacketCount: 1,
+			TotalSize:   uint64(packetSize),
+		}
 	}
-	err = bpfModule.AttachKprobe("ip_rcv", kprobe, -1)
-	if err != nil {
-		log.Fatalf("Failed to attach kprobe: %v", err)
-	}
+}
 
-	channel := make(chan []byte)
-	perfMap := initPerfMap(bpfModule, channel)
-	go monitorTraffic(ctx, channel)
-	perfMap.Start()
-	defer perfMap.Stop()
+func MonitorContainer(ctx context.Context) {
 
 	<-ctx.Done()
+	// log.Printf("Stopping monitoring for container: %s", container.ID)
 }
 
 func initPerfMap(module *bcc.Module, channel chan []byte) *bcc.PerfMap {
@@ -131,7 +357,32 @@ func initPerfMap(module *bcc.Module, channel chan []byte) *bcc.PerfMap {
 	return perfMap
 }
 
-func monitorTraffic(ctx context.Context, channel chan []byte) {
+func monitorTraffic(ctx context.Context) {
+	bpfModule := utils.LoadBPFModule(bpfcode.NetworkCcode)
+	defer bpfModule.Close()
+
+	kprobercv, err := bpfModule.LoadKprobe("kprobe__ip_rcv")
+	if err != nil {
+		log.Fatalf("Failed to load kprobe: %v", err)
+	}
+	err = bpfModule.AttachKprobe("ip_rcv", kprobercv, -1)
+	if err != nil {
+		log.Fatalf("Failed to attach kprobe: %v", err)
+	}
+	// kprobeout, err := bpfModule.LoadKprobe("kprobe__ip_output")
+	// if err != nil {
+	// 	log.Fatalf("Failed to load kprobe: %v", err)
+	// }
+	// err = bpfModule.AttachKprobe("ip_output", kprobeout, -1)
+	// if err != nil {
+	// 	log.Fatalf("Failed to attach kprobe: %v", err)
+	// }
+
+	channel := make(chan []byte)
+	perfMap := initPerfMap(bpfModule, channel)
+	perfMap.Start()
+	fmt.Println("Network Monitoring Start")
+	defer perfMap.Stop()
 	for {
 		select {
 		case data := <-channel:
@@ -143,12 +394,10 @@ func monitorTraffic(ctx context.Context, channel chan []byte) {
 	}
 }
 
-// InetNtoa converts an IP address from its 32-bit integer representation to string format (e.g., "192.168.0.1").
 func InetNtoa(ip uint32) string {
 	return fmt.Sprintf("%d.%d.%d.%d", byte(ip), byte(ip>>8), byte(ip>>16), byte(ip>>24))
 }
 
-// GetProtocolName returns the protocol name (e.g., "TCP", "UDP") given its protocol number.
 func GetProtocolName(protocol uint8) string {
 	switch protocol {
 	case 1:
@@ -162,16 +411,6 @@ func GetProtocolName(protocol uint8) string {
 	}
 }
 
-// ｖｅｒｉｆｅｄ ｉｄ ranges definition
-var verifiedIPRanges = []string{
-	"91.189.88.0/21", // Canonical's IP range
-}
-
-// IP 캐시와 뮤텍스를 사용해 동시성을 처리
-var ipCache = make(map[string]string)
-var mu sync.Mutex
-
-// isVerifiedIP checks if an IP is part of the verified IP ranges
 func isVerifiedIP(ip string) bool {
 	parsedIP := net.ParseIP(ip)
 	if parsedIP == nil {
@@ -192,35 +431,39 @@ func isVerifiedIP(ip string) bool {
 	return false
 }
 
-// ClassifyTraffic classifies the type of traffic based on IP addresses
 func ClassifyTraffic(ip string, dockerSubnets []string, hostIP string) string {
-	// Canonical IP 대역을 무시
 	if isVerifiedIP(ip) {
-		return "Ignore" // Canonical 트래픽은 무시
+		return "Ignore"
 	}
 
-	// IP가 Docker 내부 네트워크에 속하는지 확인
 	if IsDockerInternalIP(ip, dockerSubnets) {
-		return "Docker internal" // Docker 내부 트래픽
-
-		// IP가 로컬 네트워크에 속하는지 확인
-	} else if IsLocalNetworkIP(ip) {
-		return "Local Network"
-
-		// IP가 호스트 IP와 일치하는지 확인
+		return "Docker internal"
 	} else if ip == hostIP {
 		return "Host internal"
+	} else if ip == gatewayIP {
+		return "Gateway"
+	} else if isDNSServer(ip) {
+		return "DNS"
+	} else if IsLocalNetworkIP(ip) {
+		return "Local Network"
 	}
 
-	// 그 외의 트래픽은 외부로 간주
-	serviceName := GetServiceNameFromWhois(ip, "External")
+	serviceName := GetServiceNameFromFile(ip, "External")
 	if serviceName != "" {
 		return "External (" + serviceName + ")"
 	}
 	return "External"
 }
 
-// IsDockerInternalIP checks if the IP is within Docker's internal subnets
+func isDNSServer(ip string) bool {
+	for _, dnsIP := range dnsServers {
+		if ip == dnsIP {
+			return true
+		}
+	}
+	return false
+}
+
 func IsDockerInternalIP(ip string, dockerSubnets []string) bool {
 	parsedIP := net.ParseIP(ip)
 	for _, subnet := range dockerSubnets {
@@ -232,12 +475,20 @@ func IsDockerInternalIP(ip string, dockerSubnets []string) bool {
 	return false
 }
 
-// IsLocalNetworkIP checks if the IP belongs to the local network
 func IsLocalNetworkIP(ip string) bool {
+	parsedIP := net.ParseIP(ip)
+	if parsedIP == nil {
+		return false
+	}
+
+	if parsedIP.IsLoopback() || parsedIP.IsLinkLocalUnicast() || parsedIP.IsLinkLocalMulticast() {
+		return true
+	}
+
 	addrs, _ := net.InterfaceAddrs()
 	for _, addr := range addrs {
 		if ipNet, ok := addr.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
-			if ipNet.Contains(net.ParseIP(ip)) {
+			if ipNet.Contains(parsedIP) {
 				return true
 			}
 		}
@@ -245,88 +496,84 @@ func IsLocalNetworkIP(ip string) bool {
 	return false
 }
 
-// GetServiceNameFromWhois uses the whois command to retrieve the service name for an IP, with caching and error handling
-func GetServiceNameFromWhois(ip string, ipType string) string {
-	// IP가 멀티캐스트 주소인지 확인
+func GetServiceNameFromFile(ip string, ipType string) string {
 	if isMulticastIP(ip) {
 		return "Multicast"
 	}
 
-	// IP가 외부인지 확인. 그렇지 않으면 whois 명령을 건너뜀
 	if ipType != "External" {
 		return ""
 	}
 
-	// IP가 캐시에 있는지 확인
-	mu.Lock()
-	if service, exists := ipCache[ip]; exists {
-		mu.Unlock()
-		return service
-	}
-	mu.Unlock()
+	ipInfoMutex.RLock()
+	info, exists := ipInfoMap[ip]
+	ipInfoMutex.RUnlock()
 
-	// whois 명령 실행
-	cmd := exec.Command("whois", ip)
-	output, err := cmd.Output()
-	if err != nil {
-		// 에러가 발생하면 "Unknown" 반환
-		return "Unknown"
+	if exists && time.Since(info.LastUpdated) < cacheValidityPeriod {
+		return info.Organization
 	}
 
-	// whois 출력에서 서비스/조직 이름을 추출
-	serviceName := parseWhoisOutput(string(output))
+	serviceName := fetchIPInfo(ip)
 	if serviceName == "" {
-		// 서비스 이름을 찾지 못하면 "Unknown" 반환
-		return "Unknown"
+		serviceName = "Unknown"
 	}
 
-	// 결과를 캐시에 저장
-	mu.Lock()
-	ipCache[ip] = serviceName
-	mu.Unlock()
+	ipInfoMutex.Lock()
+	ipInfoMap[ip] = IPInfo{
+		Organization: serviceName,
+		LastUpdated:  time.Now(),
+	}
+	ipInfoMutex.Unlock()
+
+	go saveIPInfoToFile()
 
 	return serviceName
 }
 
-// parseWhoisOutput extracts the service or organization name from whois output
-func parseWhoisOutput(output string) string {
-	// 관심 있는 필드를 위한 정규 표현식 정의
-	orgNameRegex := regexp.MustCompile(`(?i)OrgName:\s*(.*)`)
-	netNameRegex := regexp.MustCompile(`(?i)NetName:\s*(.*)`)
-	organizationRegex := regexp.MustCompile(`(?i)Organization:\s*(.*)`)
+func fetchIPInfo(ip string) string {
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Get(fmt.Sprintf("https://get.geojs.io/v1/ip/geo/%s.json", ip))
+	if err != nil {
+		log.Printf("Error fetching IP info: %v", err)
+		return ""
+	}
+	defer resp.Body.Close()
 
-	// 첫 번째로 일치하는 필드를 찾아 반환
-	if match := orgNameRegex.FindStringSubmatch(output); len(match) > 1 {
-		return strings.TrimSpace(match[1])
-	} else if match := netNameRegex.FindStringSubmatch(output); len(match) > 1 {
-		return strings.TrimSpace(match[1])
-	} else if match := organizationRegex.FindStringSubmatch(output); len(match) > 1 {
-		return strings.TrimSpace(match[1])
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Error reading response body: %v", err)
+		return ""
 	}
 
-	// 필드를 찾지 못한 경우 빈 문자열 반환
-	return ""
+	var geoInfo GeoJSResponse
+	err = json.Unmarshal(body, &geoInfo)
+	if err != nil {
+		log.Printf("Error unmarshaling JSON: %v", err)
+		return ""
+	}
+
+	if geoInfo.Organization != "" {
+		return geoInfo.Organization
+	}
+
+	return "Unknown"
 }
 
-// isMulticastIP checks if the IP belongs to the multicast range (224.0.0.0/4)
 func isMulticastIP(ip string) bool {
 	parsedIP := net.ParseIP(ip)
 	return parsedIP != nil && parsedIP.IsMulticast()
 }
 
-// IsSpecialIP checks if the IP is either a broadcast or multicast address
 func IsSpecialIP(ip string) bool {
 	parsedIP := net.ParseIP(ip)
 	if parsedIP == nil {
 		return false
 	}
 
-	// IP가 멀티캐스트인지 확인
 	if parsedIP.IsMulticast() {
 		return true
 	}
 
-	// IP가 브로드캐스트 주소인지 확인 (IPv4: 서브넷 내 마지막 주소)
 	if isBroadcastIP(parsedIP) {
 		return true
 	}
@@ -334,11 +581,37 @@ func IsSpecialIP(ip string) bool {
 	return false
 }
 
-// isBroadcastIP는 IP가 브로드캐스트 IP인지 확인
 func isBroadcastIP(ip net.IP) bool {
 	if ip.To4() == nil {
-		return false // IPv4 주소가 아님
+		return false
 	}
-	// IPv4에서 브로드캐스트 IP는 서브넷의 마지막 주소
 	return ip.Equal(net.IPv4bcast) || ip.Equal(net.ParseIP("255.255.255.255"))
+}
+
+func generateTrafficPath(srcIP, srcType, dstIP, dstType string) TrafficPath {
+	path := TrafficPath{}
+
+	// Add source node
+	path.Nodes = append(path.Nodes, PathNode{ID: srcIP, Type: srcType})
+
+	// Add intermediate nodes if necessary
+	if srcType == "Docker internal" && dstType == "External" {
+		path.Nodes = append(path.Nodes,
+			PathNode{ID: hostIP, Type: "Host internal"},
+			PathNode{ID: gatewayIP, Type: "Gateway"},
+			PathNode{ID: dnsServers[0], Type: "DNS"})
+	}
+
+	// Add destination node
+	path.Nodes = append(path.Nodes, PathNode{ID: dstIP, Type: dstType})
+
+	// Create links
+	for i := 0; i < len(path.Nodes)-1; i++ {
+		path.Links = append(path.Links, PathLink{
+			Source: path.Nodes[i].ID,
+			Target: path.Nodes[i+1].ID,
+		})
+	}
+
+	return path
 }

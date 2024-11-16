@@ -1,3 +1,6 @@
+// Copyright Authors of HActiV
+
+// utils package for helping other package
 package utils
 
 import (
@@ -14,11 +17,13 @@ import (
 	"github.com/docker/docker/client"
 )
 
+// Basic container struct
 type ContainerInfo struct {
 	ID   string
 	Name string
 }
 
+// Get Process Inode
 func GetNamespaceInode(pid uint32) (uint64, error) {
 	if int(pid) == 0 {
 		pid = 1
@@ -37,6 +42,7 @@ func GetNamespaceInode(pid uint32) (uint64, error) {
 	return stat_t.Ino, nil
 }
 
+// Get All Container Name and ID
 func GetAllContainerNamespaces() (map[uint64]ContainerInfo, error) {
 	containerNamespaces := make(map[uint64]ContainerInfo)
 
@@ -45,7 +51,7 @@ func GetAllContainerNamespaces() (map[uint64]ContainerInfo, error) {
 		panic(err)
 	}
 
-	// HTTP 클라이언트 설정
+	// HTTP Client for docker
 	httpClient := &http.Client{
 		Transport: &http.Transport{
 			DialContext: func(_ context.Context, _, _ string) (net.Conn, error) {
@@ -54,14 +60,14 @@ func GetAllContainerNamespaces() (map[uint64]ContainerInfo, error) {
 		},
 	}
 
-	// API 요청
+	// Request API
 	resp, err := httpClient.Get("http://localhost/containers/json")
 	if err != nil {
 		panic(err)
 	}
 	defer resp.Body.Close()
 
-	// JSON 응답 파싱
+	// JSON Parsing
 	var containers []types.Container
 	if err := json.NewDecoder(resp.Body).Decode(&containers); err != nil {
 		panic(err)
@@ -81,7 +87,12 @@ func GetAllContainerNamespaces() (map[uint64]ContainerInfo, error) {
 			continue
 		}
 		containerNamespaces[inode] = ContainerInfo{ID: container.ID, Name: strings.Replace(container.Names[0], "/", "", 1)}
-	}
 
+	}
+	if HostMonitoring {
+		var hostInode uint64
+		hostInode, _ = GetNamespaceInode(1)
+		containerNamespaces[hostInode] = ContainerInfo{ID: "H", Name: "H"}
+	}
 	return containerNamespaces, err
 }
