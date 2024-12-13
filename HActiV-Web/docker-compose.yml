@@ -1,0 +1,53 @@
+ 
+version: '3'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+
+  hactiv-web-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+
+  hactiv-web-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - hactiv-web-backend
+
+  hactiv:
+    image: hactiv-image
+    container_name: HActiV
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /sys/kernel:/sys/kernel:ro
+    depends_on:
+      - hactiv-web-backend
+    environment:
+      - BACKEND_URL=http://hactiv-web-backend:8080
+    command: sleep infinity
+
+volumes:
+  kafka_data:

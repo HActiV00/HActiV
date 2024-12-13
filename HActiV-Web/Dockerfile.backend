@@ -1,0 +1,18 @@
+FROM golang:1.23
+
+WORKDIR /app
+
+# netcat 설치
+RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
+
+COPY server/ ./
+RUN go mod download
+RUN go build -o main .
+
+COPY wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
+
+EXPOSE 8080
+
+# 백엔드는 Kafka만 기다립니다.
+CMD ["/wait-for-it.sh", "kafka", "9092", "./main"]

@@ -1,0 +1,8 @@
+{
+  "API": "your-secret-api-key",
+  "HostMonitoring": "true",
+  "LogLocation": "/etc/HActiV/logs",
+  "Region": "Asia/Seoul",
+  "RuleLocation": "/etc/HActiV/rules",
+  "Url": "https://hactiv-dev.run.goorm.site/api/dashboard"
+}
