@@ -1,12 +1,21 @@
 package models
 
 import (
+	"database/sql"
 	"encoding/json"
-	"time"
+	"fmt"
+	"log"
 	"sync"
+	"time"
 
 	"github.com/beego/beego/v2/core/logs"
 	"server/kafka"
+	_ "github.com/go-sql-driver/mysql"
+)
+
+const (
+	kafkaBufferSize = 5000
+	bufferThreshold = 4500 // 버퍼가 90% 찼을 때
 )
 
 // BasicApiData contains common fields for all API data structures
@@ -37,24 +46,6 @@ type OpenApiData struct {
 	ProcessName string `json:"process_name"`
 }
 
-// Node represents a node in the network path
-type Node struct {
-	ID   string `json:"id"`
-	Type string `json:"type"`
-}
-
-// Link represents a link between nodes in the network path
-type Link struct {
-	Source string `json:"source"`
-	Target string `json:"target"`
-}
-
-// Path represents the network path
-type Path struct {
-	Nodes []Node `json:"nodes"`
-	Links []Link `json:"links"`
-}
-
 // NetworkApiData represents data for network events
 type NetworkApiData struct {
 	EventType     string    `json:"event_type"`
@@ -70,10 +61,22 @@ type NetworkApiData struct {
 	TotalSize     int       `json:"total_size"`
 	Path          string    `json:"path"`
 	Direction     string    `json:"direction"`
-	Method        string    `json:"http_method,omitempty"`
-	Host          string    `json:"http_host,omitempty"`
-	URL           string    `json:"http_url,omitempty"`
-	Parameters    string    `json:"http_parameters,omitempty"`
+}
+
+func (n *NetworkApiData) UnmarshalJSON(data []byte) error {
+	type Alias NetworkApiData
+	aux := &struct {
+		*Alias
+		Path json.RawMessage `json:"path"`
+	}{
+		Alias: (*Alias)(n),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	// Store the path as a string instead of trying to unmarshal it
+	n.Path = string(aux.Path)
+	return nil
 }
 
 // MemoryApiData represents data for memory events
@@ -130,74 +133,409 @@ type HostMetricsApiData struct {
 var (
 	dashboardData []interface{}
 	dataMutex     sync.RWMutex
+	db            *sql.DB
+	kafkaBuffer   chan []byte
 )
 
 func init() {
 	dashboardData = make([]interface{}, 0)
-}
+	kafkaBuffer = make(chan []byte, kafkaBufferSize)
 
-// SaveExecveData saves execve event data to Kafka
-func SaveExecveData(data *ExecveApiData) error {
-	return kafka.ProduceMessage("execve_events", data.ContainerName, data)
-}
-
-// SaveOpenData saves file open event data to Kafka
-func SaveOpenData(data *OpenApiData) error {
-	return kafka.ProduceMessage("open_events", data.ContainerName, data)
-}
-
-// SaveNetworkData saves network event data to Kafka
-func SaveNetworkData(data *NetworkApiData) error {
-	return kafka.ProduceMessage("network_events", data.ContainerName, data)
-}
-
-// SaveMemoryData saves memory event data to Kafka
-func SaveMemoryData(data *MemoryApiData) error {
-	return kafka.ProduceMessage("memory_events", data.ContainerName, data)
-}
-
-// SaveDeleteData saves delete event data to Kafka
-func SaveDeleteData(data *DeleteApiData) error {
-	return kafka.ProduceMessage("delete_events", data.ContainerName, data)
-}
-
-// SaveLogAccessData saves log access event data to Kafka
-func SaveLogAccessData(data *LogAccessApiData) error {
-	return kafka.ProduceMessage("log_access_events", data.ContainerName, data)
-}
-
-// SaveContainerMetricsData saves container metrics data to Kafka
-func SaveContainerMetricsData(data *ContainerMetricsApiData) error {
-	return kafka.ProduceMessage("container_metrics_events", data.Name, data)
-}
-
-// SaveHostMetricsData saves host metrics data to Kafka
-func SaveHostMetricsData(data *HostMetricsApiData) error {
-	return kafka.ProduceMessage("host_metrics_events", "host", data)
-}
-
-// GetDashboardData retrieves dashboard data for a specific event type
-func GetDashboardData(eventType string) ([]interface{}, error) {
-	dataMutex.RLock()
-	defer dataMutex.RUnlock()
-
-	if eventType == "all" {
-		return dashboardData, nil
+	var err error
+	db, err = sql.Open("mysql", "hactiv_user:Gorxlqmdbwj11!@#@tcp(localhost:3306)/hactiv_dashboard")
+	if err != nil {
+		log.Fatalf("Failed to connect to MySQL: %v", err)
 	}
 
-	filteredData := make([]interface{}, 0)
-	for _, item := range dashboardData {
-		if itemMap, ok := item.(map[string]interface{}); ok {
-			if itemMap["event_type"] == eventType {
-				filteredData = append(filteredData, item)
+	if err = db.Ping(); err != nil {
+		logs.Error("Failed to ping MySQL: %v", err)
+		return
+	}
+
+	createTables()
+
+	go processKafkaMessages()
+}
+
+func createTables() {
+	_, err := db.Exec(`
+		CREATE TABLE IF NOT EXISTS events (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			event_type VARCHAR(50),
+			data JSON,
+			timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)
+	`)
+	if err != nil {
+		logs.Error("Failed to create events table: %v", err)
+	}
+}
+
+func SaveNetworkData(data *NetworkApiData) error {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal NetworkApiData: %v", err)
+	}
+
+	select {
+	case kafkaBuffer <- jsonData:
+		// 메시지가 Kafka 버퍼에 성공적으로 추가됨
+		if len(kafkaBuffer) >= bufferThreshold {
+			go flushBufferToMySQL()
+		}
+	default:
+		// Kafka 버퍼가 가득 참 (이 경우는 발생하지 않아야 함)
+		log.Printf("Kafka buffer is full. This should not happen.")
+		return fmt.Errorf("kafka buffer is full")
+	}
+
+	return nil
+}
+
+func flushBufferToMySQL() {
+	dataMutex.Lock()
+	defer dataMutex.Unlock()
+
+	if len(kafkaBuffer) == 0 {
+		return
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		log.Printf("Failed to begin transaction: %v", err)
+		return
+	}
+
+	stmt, err := tx.Prepare("INSERT INTO events (event_type, data) VALUES (?, ?)")
+	if err != nil {
+		log.Printf("Failed to prepare statement: %v", err)
+		tx.Rollback()
+		return
+	}
+	defer stmt.Close()
+
+	for len(kafkaBuffer) > 0 {
+		select {
+		case msg := <-kafkaBuffer:
+			var data map[string]interface{}
+			if err := json.Unmarshal(msg, &data); err != nil {
+				log.Printf("Failed to unmarshal message: %v", err)
+				continue
 			}
+
+			_, err = stmt.Exec(data["event_type"], string(msg))
+			if err != nil {
+				log.Printf("Failed to insert message: %v", err)
+			}
+		default:
+			break
 		}
 	}
 
-	return filteredData, nil
+	if err := tx.Commit(); err != nil {
+		log.Printf("Failed to commit transaction: %v", err)
+		tx.Rollback()
+	}
 }
 
-// InitializeKafkaConsumers sets up Kafka consumers for all required topics
+func processKafkaMessages() {
+	for msg := range kafkaBuffer {
+		var data map[string]interface{}
+		if err := json.Unmarshal(msg, &data); err != nil {
+			log.Printf("Failed to unmarshal message: %v", err)
+			continue
+		}
+
+		dataMutex.Lock()
+		dashboardData = append([]interface{}{data}, dashboardData...)
+		if len(dashboardData) > 1000 { // 대시보드 데이터 크기 제한
+			dashboardData = dashboardData[:1000]
+		}
+		dataMutex.Unlock()
+
+		// 여기서 WebSocket 클라이언트에게 메시지를 보냅니다
+		// sendToWebSocket(msg)
+	}
+}
+
+func GetDashboardData(eventType string, startTime, endTime time.Time) ([]interface{}, error) {
+	if startTime.IsZero() && endTime.IsZero() {
+		// Kafka 버퍼의 실시간 데이터 반환
+		dataMutex.RLock()
+		defer dataMutex.RUnlock()
+
+		if eventType == "all" {
+			return dashboardData, nil
+		}
+
+		filteredData := make([]interface{}, 0)
+		for _, item := range dashboardData {
+			if itemMap, ok := item.(map[string]interface{}); ok {
+				if itemMap["event_type"] == eventType {
+					filteredData = append(filteredData, item)
+				}
+			}
+		}
+		return filteredData, nil
+	}
+
+	// MySQL에서 과거 데이터 조회
+	query := `
+		SELECT data FROM events
+		WHERE event_type = ? AND timestamp BETWEEN ? AND ?
+		ORDER BY timestamp DESC
+		LIMIT 1000
+	`
+	if eventType == "all" {
+		query = `
+			SELECT data FROM events
+			WHERE timestamp BETWEEN ? AND ?
+			ORDER BY timestamp DESC
+			LIMIT 1000
+		`
+	}
+
+	var rows *sql.Rows
+	var err error
+	if eventType == "all" {
+		rows, err = db.Query(query, startTime, endTime)
+	} else {
+		rows, err = db.Query(query, eventType, startTime, endTime)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var result []interface{}
+	for rows.Next() {
+		var dataStr string
+		if err := rows.Scan(&dataStr); err != nil {
+			return nil, err
+		}
+
+		var data interface{}
+		if err := json.Unmarshal([]byte(dataStr), &data); err != nil {
+			return nil, err
+		}
+
+		result = append(result, data)
+	}
+
+	return result, nil
+}
+
+func SaveExecveData(data *ExecveApiData) error {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal ExecveApiData: %v", err)
+	}
+
+	select {
+	case kafkaBuffer <- jsonData:
+		if len(kafkaBuffer) >= bufferThreshold {
+			go flushBufferToMySQL()
+		}
+	default:
+		log.Printf("Kafka buffer is full. This should not happen.")
+		return fmt.Errorf("kafka buffer is full")
+	}
+
+	return nil
+}
+
+func SaveOpenData(data *OpenApiData) error {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal OpenApiData: %v", err)
+	}
+
+	select {
+	case kafkaBuffer <- jsonData:
+		if len(kafkaBuffer) >= bufferThreshold {
+			go flushBufferToMySQL()
+		}
+	default:
+		log.Printf("Kafka buffer is full. This should not happen.")
+		return fmt.Errorf("kafka buffer is full")
+	}
+
+	return nil
+}
+
+func SaveMemoryData(data *MemoryApiData) error {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal MemoryApiData: %v", err)
+	}
+
+	select {
+	case kafkaBuffer <- jsonData:
+		if len(kafkaBuffer) >= bufferThreshold {
+			go flushBufferToMySQL()
+		}
+	default:
+		log.Printf("Kafka buffer is full. This should not happen.")
+		return fmt.Errorf("kafka buffer is full")
+	}
+
+	return nil
+}
+
+func SaveDeleteData(data *DeleteApiData) error {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal DeleteApiData: %v", err)
+	}
+
+	select {
+	case kafkaBuffer <- jsonData:
+		if len(kafkaBuffer) >= bufferThreshold {
+			go flushBufferToMySQL()
+		}
+	default:
+		log.Printf("Kafka buffer is full. This should not happen.")
+		return fmt.Errorf("kafka buffer is full")
+	}
+
+	return nil
+}
+
+func SaveLogAccessData(data *LogAccessApiData) error {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal LogAccessApiData: %v", err)
+	}
+
+	select {
+	case kafkaBuffer <- jsonData:
+		if len(kafkaBuffer) >= bufferThreshold {
+			go flushBufferToMySQL()
+		}
+	default:
+		log.Printf("Kafka buffer is full. This should not happen.")
+		return fmt.Errorf("kafka buffer is full")
+	}
+
+	return nil
+}
+
+func SaveContainerMetricsData(data *ContainerMetricsApiData) error {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal ContainerMetricsApiData: %v", err)
+	}
+
+	select {
+	case kafkaBuffer <- jsonData:
+		if len(kafkaBuffer) >= bufferThreshold {
+			go flushBufferToMySQL()
+		}
+	default:
+		log.Printf("Kafka buffer is full. This should not happen.")
+		return fmt.Errorf("kafka buffer is full")
+	}
+
+	return nil
+}
+
+func SaveHostMetricsData(data *HostMetricsApiData) error {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal HostMetricsApiData: %v", err)
+	}
+
+	select {
+	case kafkaBuffer <- jsonData:
+		if len(kafkaBuffer) >= bufferThreshold {
+			go flushBufferToMySQL()
+		}
+	default:
+		log.Printf("Kafka buffer is full. This should not happen.")
+		return fmt.Errorf("kafka buffer is full")
+	}
+
+	return nil
+}
+
+func DeleteContainerData(containerName string) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %v", err)
+	}
+
+	_, err = tx.Exec("DELETE FROM events WHERE JSON_EXTRACT(data, '$.container_name') = ?", containerName)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to delete container data: %v", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %v", err)
+	}
+
+	dataMutex.Lock()
+	newData := make([]interface{}, 0, len(dashboardData))
+	for _, item := range dashboardData {
+		if itemMap, ok := item.(map[string]interface{}); ok {
+			if itemMap["container_name"] != containerName {
+				newData = append(newData, item)
+			}
+		}
+	}
+	dashboardData = newData
+	dataMutex.Unlock()
+
+	return nil
+}
+
+func GetContainerEvents(containerName string) (string, error) {
+	query := `
+		SELECT data
+		FROM events
+		WHERE JSON_EXTRACT(data, '$.container_name') = ?
+		ORDER BY timestamp DESC
+	`
+
+	rows, err := db.Query(query, containerName)
+	if err != nil {
+		return "", fmt.Errorf("failed to query container events: %v", err)
+	}
+	defer rows.Close()
+
+	var events []map[string]interface{}
+	for rows.Next() {
+		var dataStr string
+		if err := rows.Scan(&dataStr); err != nil {
+			return "", fmt.Errorf("failed to scan row: %v", err)
+		}
+
+		var data map[string]interface{}
+		if err := json.Unmarshal([]byte(dataStr), &data); err != nil {
+			return "", fmt.Errorf("failed to unmarshal data: %v", err)
+		}
+
+		events = append(events, data)
+	}
+
+	csvData := "Event Type,Timestamp,UID,GID,PID,PPID,Command,Process Name,Arguments\n"
+	for _, event := range events {
+		csvData += fmt.Sprintf("%s,%s,%d,%d,%d,%d,%s,%s,%s\n",
+			event["event_type"],
+			event["timestamp"],
+			event["uid"],
+			event["gid"],
+			event["pid"],
+			event["ppid"],
+			event["command"],
+			event["process_name"],
+			event["arguments"])
+	}
+
+	return csvData, nil
+}
+
 func InitializeKafkaConsumers() error {
 	topics := []string{
 		"execve_events",
@@ -221,23 +559,38 @@ func InitializeKafkaConsumers() error {
 	return nil
 }
 
-// handleKafkaMessage processes incoming Kafka messages and stores them in memory
 func handleKafkaMessage(msg []byte) error {
-	var data interface{}
-	err := json.Unmarshal(msg, &data)
-	if err != nil {
-		return err
+	select {
+	case kafkaBuffer <- msg:
+		// Message added to Kafka buffer successfully
+		if len(kafkaBuffer) >= bufferThreshold {
+			go flushBufferToMySQL()
+		}
+	default:
+		// Kafka buffer is full, store in MySQL
+		if err := storeMessageInMySQL(msg); err != nil {
+			log.Printf("Failed to store message in MySQL: %v", err)
+			return err
+		}
 	}
-
-	dataMutex.Lock()
-	dashboardData = append(dashboardData, data)
-	dataMutex.Unlock()
-
 	return nil
 }
 
-// GetMessageChannel returns the channel for real-time messages
-func GetMessageChannel() chan []byte {
-	return kafka.GetMessageChannel()
+func storeMessageInMySQL(message []byte) error {
+	var data map[string]interface{}
+	if err := json.Unmarshal(message, &data); err != nil {
+		return err
+	}
+
+	_, err := db.Exec("INSERT INTO events (event_type, data) VALUES (?, ?)",
+		data["event_type"], string(message))
+	return err
 }
 
+func GetKafkaChannel() chan []byte {
+	return kafkaBuffer
+}
+
+func GetMessageChannel() chan []byte {
+	return kafkaBuffer
+}
