@@ -1,40 +1,26 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
+	"os"
+
 	"server/kafka"
 	"server/models"
 	_ "server/routers"
-	"time"
-
 	beego "github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/filter/cors"
 	"github.com/beego/beego/v2/core/logs"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func getConfigString(key string) string {
 	value := beego.AppConfig.DefaultString(key, "")
 	if value == "" {
 		logs.Error("Failed to get config value for %s", key)
-		panic("Missing configuration")
+		os.Exit(1)
 	}
 	return value
-}
-
-func initKafkaWithRetry(maxRetries int, retryInterval time.Duration) error {
-	kafkaBrokers := []string{getConfigString("kafka_brokers")}
-	var err error
-
-	for i := 0; i < maxRetries; i++ {
-		err = kafka.InitKafka(kafkaBrokers)
-		if err == nil {
-			logs.Info("Successfully connected to Kafka")
-			return nil
-		}
-		logs.Warn("Failed to connect to Kafka, retrying in %v... (Attempt %d/%d)", retryInterval, i+1, maxRetries)
-		time.Sleep(retryInterval)
-	}
-
-	return err
 }
 
 func init() {
@@ -42,22 +28,45 @@ func init() {
 	err := beego.LoadAppConfig("ini", "conf/app.conf")
 	if err != nil {
 		logs.Error("Failed to load configuration: %v", err)
-		panic(err)
+		os.Exit(1)
 	}
 
-	// Initialize Kafka with retry
-	err = initKafkaWithRetry(5, 5*time.Second)
+	// Initialize Kafka
+	kafkaBrokers := []string{getConfigString("kafka_brokers")}
+	err = kafka.InitKafka(kafkaBrokers)
 	if err != nil {
-		logs.Error("Failed to initialize Kafka after multiple attempts: %v", err)
-		panic(err)
+		logs.Error("Failed to initialize Kafka: %v", err)
+		os.Exit(1)
 	}
 
 	// Initialize Kafka consumers
 	err = models.InitializeKafkaConsumers()
 	if err != nil {
 		logs.Error("Failed to initialize Kafka consumers: %v", err)
-		panic(err)
+		os.Exit(1)
 	}
+
+	// MySQL 연결 설정
+	dbUser := beego.AppConfig.DefaultString("db_user", "")
+	dbPass := beego.AppConfig.DefaultString("db_pass", "")
+	dbName := beego.AppConfig.DefaultString("db_name", "")
+	dbHost := beego.AppConfig.DefaultString("db_host", "localhost")
+	dbPort := beego.AppConfig.DefaultString("db_port", "3306")
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		logs.Error("Failed to connect to MySQL: %v", err)
+		os.Exit(1)
+	}
+	defer db.Close()
+
+	if err = db.Ping(); err != nil {
+		logs.Error("Failed to ping MySQL: %v", err)
+		os.Exit(1)
+	}
+
+	logs.Info("Successfully connected to MySQL")
 }
 
 func main() {
@@ -85,7 +94,7 @@ func main() {
 	err := logs.SetLogger(logs.AdapterFile, logConfig)
 	if err != nil {
 		logs.Error("Failed to set logger: %v", err)
-		panic(err)
+		os.Exit(1)
 	}
 	logs.SetLevel(logs.LevelDebug)
 	logs.EnableFuncCallDepth(true)
@@ -95,3 +104,4 @@ func main() {
 	defer kafka.CloseKafka()
 	beego.Run()
 }
+
