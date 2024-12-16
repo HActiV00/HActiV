@@ -264,7 +264,7 @@
     "event_name": "Directory traversal detection-2",
     "description": "디렉토리 트레버설 공격 감지",
     "usage": true,
-    "condition": "%Filename% () ..\ ",
+    "condition": "%Filename% () ..\\ ",
     "action": "print",
     "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %ContainerName% | 경로 접근: %ProcessName% (%Filename%)",
     "time_conditions": null
