@@ -58,7 +58,8 @@ func ExecveMonitoring() {
 	table := bpf.NewTable(bpfModule.TableId("events"), bpfModule)
 	channel := make(chan []byte)
 	lost := make(chan uint64)
-	perfMap, err := bpf.InitPerfMap(table, channel, lost)
+	//perfMap, err := bpf.InitPerfMap(table, channel, lost)
+	perfMap, err := bpf.InitPerfMapWithPageCnt(table, channel, lost, 512)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to initialize PerfMap: %v\n", err)
 		os.Exit(1)

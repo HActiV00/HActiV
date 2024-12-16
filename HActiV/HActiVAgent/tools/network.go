@@ -75,6 +75,7 @@ func monitorTraffic(ctx context.Context) {
 	}
 
 	channel := make(chan []byte)
+
 	perfMap := network.InitPerfMap(bpfModule, channel)
 	perfMap.Start()
 

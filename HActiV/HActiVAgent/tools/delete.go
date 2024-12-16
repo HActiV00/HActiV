@@ -66,7 +66,8 @@ func DeleteMonitoring() {
 	table := bcc.NewTable(bpfModule.TableId("events"), bpfModule)
 	channel := make(chan []byte)
 	lost := make(chan uint64)
-	perfMap, err := bcc.InitPerfMap(table, channel, lost)
+	//perfMap, err := bcc.InitPerfMap(table, channel, lost)
+	perfMap, err := bcc.InitPerfMapWithPageCnt(table, channel, lost, 512)
 	if err != nil {
 		fmt.Printf("Failed to initialize PerfMap: %v\n", err)
 		return

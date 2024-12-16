@@ -206,12 +206,7 @@ func HandleCombinedEvent(httpEvent HTTPEvent, networkEvent *Event, mntNs uint32,
 		Parameters:    httpEvent.Parameters,
 	}
 	logger.Log(matchevent)
-	/*
-		httpEvent.Method,
-		httpEvent.Host,
-		httpEvent.URL,
-		httpEvent.Parameters
-	*/
+
 	/*
 		fmt.Printf(
 			"%s | CONTAINER: %s | HTTP | SRC_IP: %s (%s) | DST_IP: %s (%s) | METHOD: %s | HOST: %s | URL: %s | PARAMETERS: %s | PROTOCOL: %s | SIZE: %d bytes | TOTAL_PACKETS: %d | TOTAL_SIZE: %d bytes | PATH: %s | DIRECTION: %s\n",
@@ -322,7 +317,8 @@ func updateContainerStats(containerName string, packetSize uint32, isOutgoing bo
 func InitPerfMap(module *bcc.Module, channel chan []byte) *bcc.PerfMap {
 	table := bcc.NewTable(module.TableId("events"), module)
 	lost := make(chan uint64)
-	perfMap, err := bcc.InitPerfMap(table, channel, lost)
+	//perfMap, err := bcc.InitPerfMap(table, channel, lost)
+	perfMap, err := bcc.InitPerfMapWithPageCnt(table, channel, lost, 512)
 	if err != nil {
 		log.Fatalf("Failed to init perf map: %v", err)
 	}
