@@ -28,12 +28,13 @@ func HActiVSetting() {
 			ConfigError("파일 생성 중 오류 발생")
 		}
 		defer file.Close()
-
+		//Url 필드 제거 후 DataUrl, RuleUrl 필드 추가
 		data := map[string]string{
 			"HostMonitoring": "False",
 			"RuleLocation":   "/etc/HActiV/rules",
 			"API":            "TestAPIForBasic",
-			"Url":            "http://localhost:8080/api/dashboard",
+			"DataUrl":        "http://localhost:8080/api/dashboard",
+			"RuleUrl":        "http://localhost:8080/api/alert",
 			"Region":         "Asia/Seoul",
 			"LogLocation":    "/etc/HActiV/logs",
 		}
@@ -61,7 +62,8 @@ func HActiVSetting() {
 	hostMonitoring := strings.TrimSpace(existingData["HostMonitoring"])
 	ruleLocation := existingData["RuleLocation"]
 	api := existingData["API"]
-	url := existingData["Url"]
+	dataurl := existingData["DataUrl"]
+	ruleurl := existingData["RuleUrl"]
 	HostRegion = existingData["Region"]
 	logLocation := existingData["LogLocation"]
 
@@ -74,7 +76,8 @@ func HActiVSetting() {
 	fmt.Printf("HostMonitoring: %s\n", hostMonitoring)
 	fmt.Printf("RuleLocation: %s\n", ruleLocation)
 	fmt.Printf("API: %s\n", api)
-	fmt.Printf("Url: %s\n", url)
+	fmt.Printf("DataUrl: %s\n", dataurl)
+	fmt.Printf("RuleUrl: %s\n", ruleurl)
 	fmt.Printf("Region: %s\n", HostRegion)
 	fmt.Printf("LogLocation: %s\n", logLocation)
 

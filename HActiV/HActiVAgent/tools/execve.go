@@ -96,8 +96,9 @@ func ExecveMonitoring() {
 				args := convertByteArrayToString(event.Args)
 				filename := string(bytes.TrimRight(event.Filename[:], "\x00"))
 
+				//matchevent Tool execve -> Systemcall 수정 Datasend와 일치 시키기 위해
 				matchevent := utils.Event{
-					Tool:          "execve",
+					Tool:          "Systemcall",
 					Time:          time.Now().Format(time.RFC3339),
 					Uid:           event.Uid,
 					Gid:           event.Gid,
@@ -114,7 +115,7 @@ func ExecveMonitoring() {
 				configs.MatchedEvent(policies, matchevent)
 				logger.Log(matchevent)
 
-				utils.DataSend("Systemcall", time.Now().Format(time.RFC3339), containerInfo.Name, event.Uid, event.Gid, event.Pid, event.Ppid, filename, processName, strings.Replace(args, "--color=auto", "", 1))
+				utils.DataSend("Systemcall", matchevent.Time, containerInfo.Name, event.Uid, event.Gid, event.Pid, event.Ppid, filename, processName, strings.Replace(args, "--color=auto", "", 1))
 
 			case lostCountData := <-lost:
 				lostCount += lostCountData

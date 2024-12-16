@@ -32,12 +32,16 @@ type Event struct {
 	HTTPInfo      *HTTPData
 	SrcPort       uint16
 	DstPort       uint16
-	PacketSize    uint32
+	PacketSize    int
+	TotalSize     int    //추가
+	PacketCount   int    // 추가
+	PathJson      string // 추가
+	ReturnValue   int32
+	Method        string
+	Host          string
+	URL           string
+	Parameters    string
 }
 
 type HTTPData struct {
-	Method       string
-	Host         string
-	URL          string
-	ResponseCode uint16
 }

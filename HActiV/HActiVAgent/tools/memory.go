@@ -219,9 +219,9 @@ func MemoryMonitoring() {
 				processName := string(bytes.Trim(event.Comm[:], "\x00"))
 				syscallName := string(bytes.Trim(event.Syscall[:], "\x00"))
 				mappingType := getCachedMappingType(event.Pid, event.StartAddr)
-
+				//matchevent Tool memory -> Memory 수정 Datasend와 일치 시키기 위해
 				matchevent := utils.Event{
-					Tool:          "memory",
+					Tool:          "Memory",
 					Time:          time.Now().Format(time.RFC3339),
 					Uid:           event.Uid,
 					Gid:           event.Gid,

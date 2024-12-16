@@ -22,12 +22,13 @@ type DualLogger struct {
 	wg           sync.WaitGroup
 }
 
+// execve -> Systemcall Datasend와 필드 일치를 위해해
 var ToolFields = map[string]string{
-	"execve":  "Time ContainerName Uid Gid Pid Ppid Puid Pgid Filename ProcessName Args",
-	"open":    "Time ContainerName Uid Gid Pid Ppid Filename ProcessName",
-	"delete":  "Time ContainerName Uid Gid Pid Ppid Filename ProcessName",
-	"memory":  "Time ContainerName Uid Gid Pid Ppid  ProcessName Syscall StartAddr EndAddr Size Prottemp Prot MappingType",
-	"network": "Time ContainerName SrcIp SrcIpLabel DstIp DstIpLabel Direction Protocol SrcPort DstPort PacketSize",
+	"Systemcall":      "Time ContainerName Uid Gid Pid Ppid Puid Pgid Filename ProcessName Args",
+	"open":            "Time ContainerName Uid Gid Pid Ppid Filename ProcessName",
+	"delete":          "Time ContainerName Uid Gid Pid Ppid Filename ProcessName",
+	"Memory":          "Time ContainerName Uid Gid Pid Ppid  ProcessName Syscall StartAddr EndAddr Size Prottemp Prot MappingType",
+	"Network_traffic": "Time ContainerName SrcIp SrcIpLabel DstIp DstIpLabel Direction Protocol SrcPort DstPort PacketSize",
 }
 
 func NewDualLogger(compressFilename, jsonFilename string) (*DualLogger, error) {

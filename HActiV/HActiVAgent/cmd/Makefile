@@ -3,7 +3,7 @@
 # Default target
 build:
 	@echo "Building HActiV..."
-	go build -o HActiV
+	sudo go build -o HActiV
 	@echo "Build complete: HActiV created"
 
 # Clean target to remove the binary

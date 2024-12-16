@@ -8,7 +8,6 @@ import (
 	"HActiV/pkg/docker"
 	"HActiV/pkg/utils"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net"
 	"sync"
@@ -81,23 +80,7 @@ func HandleEvent(data unsafe.Pointer, policies []configs.Policy, logger *utils.D
 	}
 
 	updateContainerStats(containerInfo.Name, event.PacketSize, event.IsOutgoing)
-
-	matchevent := utils.Event{
-		Tool:          "network",
-		Time:          time.Now().Format(time.RFC3339),
-		ContainerName: containerInfo.Name,
-		SrcIp:         srcIP,
-		SrcIpLabel:    srcType,
-		DstIp:         dstIP,
-		DstIpLabel:    dstType,
-		Protocol:      protocolName,
-		Direction:     direction,
-		PacketSize:    event.PacketSize,
-	}
-
-	configs.MatchedEvent(policies, matchevent)
-
-	logger.Log(matchevent)
+	//matchevent Tool network -> Network_traffic 수정 Datasend와 일치 시키기 위해
 
 	path := generateTrafficPath(srcIP, srcType, dstIP, dstType)
 	pathJSON, err := json.Marshal(path)
@@ -110,24 +93,44 @@ func HandleEvent(data unsafe.Pointer, policies []configs.Policy, logger *utils.D
 	stats := containerStats[containerInfo.Name]
 	containerStatsMutex.RUnlock()
 
-	fmt.Printf("%s | CONTAINER: %s | PATH: %s | SRC_IP: %s (%s) | DST_IP: %s (%s) | PROTOCOL: %s | PACKETS: %d | SIZE: %d bytes | TOTAL_PACKETS: %d | TOTAL_SIZE: %d bytes\n",
-		time.Now().Format(time.RFC3339),
-		containerInfo.Name,
-		string(pathJSON),
-		srcIP,
-		srcType,
-		dstIP,
-		dstType,
-		protocolName,
-		event.PacketCount,
-		event.PacketSize,
-		stats.PacketCount,
-		stats.TotalSize,
-	)
+	matchevent := utils.Event{
+		Tool:          "Network_traffic",
+		Time:          time.Now().Format(time.RFC3339),
+		ContainerName: containerInfo.Name,
+		SrcIp:         srcIP,
+		SrcIpLabel:    srcType,
+		DstIp:         dstIP,
+		DstIpLabel:    dstType,
+		Protocol:      protocolName,
+		PacketCount:   int(stats.PacketCount),
+		Direction:     direction,
+		PacketSize:    int(event.PacketSize),
+		PathJson:      string(pathJSON),
+		TotalSize:     int(stats.TotalSize),
+	}
 
+	configs.MatchedEvent(policies, matchevent)
+
+	logger.Log(matchevent)
+	/*
+		fmt.Printf("%s | CONTAINER: %s | PATH: %s | SRC_IP: %s (%s) | DST_IP: %s (%s) | PROTOCOL: %s | PACKETS: %d | SIZE: %d bytes | TOTAL_PACKETS: %d | TOTAL_SIZE: %d bytes\n",
+			time.Now().Format(time.RFC3339),
+			containerInfo.Name,
+			string(pathJSON),
+			srcIP,
+			srcType,
+			dstIP,
+			dstType,
+			protocolName,
+			event.PacketCount,
+			event.PacketSize,
+			stats.PacketCount,
+			stats.TotalSize,
+		)
+	*/
 	utils.DataSend(
 		"Network_traffic",
-		time.Now().Format(time.RFC3339),
+		matchevent.Time,
 		containerInfo.Name,
 		srcIP,
 		srcType,
@@ -183,9 +186,9 @@ func HandleCombinedEvent(httpEvent HTTPEvent, networkEvent *Event, mntNs uint32,
 		log.Printf("Error generating traffic path JSON: %v", err)
 		return
 	}
-
+	//matchevent Tool network -> Network_traffic 수정 Datasend와 일치 시키기 위해
 	matchevent := utils.Event{
-		Tool:          "network",
+		Tool:          "Network_traffic",
 		Time:          time.Now().Format(time.RFC3339),
 		ContainerName: containerInfo.Name,
 		SrcIp:         httpEvent.SrcIP,
@@ -193,24 +196,38 @@ func HandleCombinedEvent(httpEvent HTTPEvent, networkEvent *Event, mntNs uint32,
 		DstIp:         httpEvent.DstIP,
 		DstIpLabel:    dstType,
 		Direction:     direction,
-		PacketSize:    networkEvent.PacketSize,
+		PacketSize:    int(networkEvent.PacketSize),
+		PacketCount:   int(stats.PacketCount),
+		TotalSize:     int(stats.TotalSize),
+		PathJson:      pathJSON,
+		Method:        httpEvent.Method,
+		Host:          httpEvent.Host,
+		URL:           httpEvent.URL,
+		Parameters:    httpEvent.Parameters,
 	}
 	logger.Log(matchevent)
-
-	fmt.Printf(
-		"%s | CONTAINER: %s | HTTP | SRC_IP: %s (%s) | DST_IP: %s (%s) | METHOD: %s | HOST: %s | URL: %s | PARAMETERS: %s | PROTOCOL: %s | SIZE: %d bytes | TOTAL_PACKETS: %d | TOTAL_SIZE: %d bytes | PATH: %s | DIRECTION: %s\n",
-		formattedTimestamp,
-		containerName,
-		httpEvent.SrcIP, srcType,
-		httpEvent.DstIP, dstType,
-		httpEvent.Method, httpEvent.Host, httpEvent.URL, httpEvent.Parameters,
-		GetProtocolName(uint8(networkEvent.Protocol)),
-		networkEvent.PacketSize,
-		stats.PacketCount,
-		stats.TotalSize,
-		pathJSON,
-		direction,
-	)
+	/*
+		httpEvent.Method,
+		httpEvent.Host,
+		httpEvent.URL,
+		httpEvent.Parameters
+	*/
+	/*
+		fmt.Printf(
+			"%s | CONTAINER: %s | HTTP | SRC_IP: %s (%s) | DST_IP: %s (%s) | METHOD: %s | HOST: %s | URL: %s | PARAMETERS: %s | PROTOCOL: %s | SIZE: %d bytes | TOTAL_PACKETS: %d | TOTAL_SIZE: %d bytes | PATH: %s | DIRECTION: %s\n",
+			formattedTimestamp,
+			containerName,
+			httpEvent.SrcIP, srcType,
+			httpEvent.DstIP, dstType,
+			httpEvent.Method, httpEvent.Host, httpEvent.URL, httpEvent.Parameters,
+			GetProtocolName(uint8(networkEvent.Protocol)),
+			networkEvent.PacketSize,
+			stats.PacketCount,
+			stats.TotalSize,
+			pathJSON,
+			direction,
+		)
+	*/
 
 	utils.DataSend(
 		"Network_traffic",

@@ -25,6 +25,7 @@ type TimeRange struct {
 }
 
 type Policy struct {
+	PolicyName     string          `json:"policy_name"`
 	Condition      string          `json:"condition"`
 	Action         string          `json:"action"`
 	PrintFormat    string          `json:"print_format"`
@@ -77,6 +78,7 @@ func LoadRules(toolName string) ([]Policy, error) {
 				fmt.Printf("  시간: %s\n", rule.TimeConditions)
 
 				policies = append(policies, Policy{
+					PolicyName:     rule.EventName,
 					Condition:      rule.Condition,
 					Action:         rule.Action,
 					PrintFormat:    rule.PrintFormat,
@@ -208,6 +210,30 @@ policyLoop:
 						break policyLoop
 					case "print":
 						fmt.Println(replaceAllPlaceholders(policy.PrintFormat, event))
+					case "alert":
+						switch event.Tool {
+						case "Systemcall":
+							{
+								utils.RuleSend(policy.PolicyName, replaceAllPlaceholders(policy.PrintFormat, event), "Systemcall", event.Time, event.ContainerName, event.Uid, event.Gid, event.Pid, event.Ppid, event.Filename, event.ProcessName, strings.Replace(event.Args, "--color=auto", "", 1))
+							}
+						case "file_open":
+							{
+								utils.RuleSend(policy.PolicyName, replaceAllPlaceholders(policy.PrintFormat, event), "file_open", event.Time, event.ContainerName, event.Uid, event.Gid, event.Pid, event.Ppid, "open", event.Filename, event.ReturnValue, event.ProcessName)
+							}
+						case "delete":
+							{
+								utils.RuleSend(policy.PolicyName, replaceAllPlaceholders(policy.PrintFormat, event), "delete", event.Time, event.ContainerName, event.Uid, event.Gid, event.Pid, event.Ppid, event.ProcessName, event.Filename)
+							}
+						case "Memory":
+							{
+								utils.RuleSend(policy.PolicyName, replaceAllPlaceholders(policy.PrintFormat, event), "Memory", event.Time, event.ContainerName, event.Uid, event.Gid, event.Pid, event.Ppid, event.ProcessName, event.Syscall, event.StartAddr, event.EndAddr, event.Size, event.Prottemp, event.Prot, event.MappingType)
+							}
+						case "Network_traffic":
+							{
+								utils.RuleSend(policy.PolicyName, replaceAllPlaceholders(policy.PrintFormat, event), "Network_traffic", event.Time, event.ContainerName, event.SrcIp, event.SrcIpLabel, event.DstIp, event.DstIpLabel, event.ProcessName, event.PacketSize, event.PacketCount, event.TotalSize, event.PathJson, event.Direction, event.Method, event.Host, event.URL, event.Parameters)
+							}
+
+						}
 					}
 				}
 			}
@@ -311,7 +337,7 @@ func isTimeInRange(checkTime, start, end string) bool {
 	e, _ := time.Parse(layout, end)
 
 	if end == "24:00" {
-		e = e.Add(24 * time.Hour)
+		return true
 	}
 	return (t.After(s) || t.Equal(s)) && (t.Before(e) || t.Equal(e))
 }

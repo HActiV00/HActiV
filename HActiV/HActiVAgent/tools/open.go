@@ -91,8 +91,9 @@ func OpenMonitoring() {
 				if !exists {
 					continue
 				}
-
+				//matchevent Tool open -> file_open 수정 Datasend와 일치 시키기 위해
 				matchevent := utils.Event{
+					Tool:          "file_open",
 					Time:          time.Now().Format(time.RFC3339),
 					ContainerName: containerInfo.Name,
 					Uid:           event.Uid,
@@ -109,7 +110,7 @@ func OpenMonitoring() {
 
 				utils.DataSend(
 					"file_open",
-					time.Now().Format(time.RFC3339),
+					matchevent.Time,
 					containerInfo.Name,
 					event.Uid,
 					event.Gid,

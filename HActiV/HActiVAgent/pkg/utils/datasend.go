@@ -15,7 +15,8 @@ import (
 
 var (
 	apiKey         string
-	url            string
+	dataUrl        string
+	ruleUrl        string
 	HostMonitoring bool
 	LogLocation    string
 )
@@ -36,7 +37,8 @@ func DataSendSetting() {
 	}
 
 	apiKey = existingData["API"]
-	url = existingData["Url"]
+	dataUrl = existingData["DataUrl"]
+	ruleUrl = existingData["RuleUrl"]
 	HostMonitoring, _ = strconv.ParseBool(existingData["HostMonitoring"])
 	LogLocation = existingData["LogLocation"]
 
@@ -275,8 +277,8 @@ func DataSend(args ...interface{}) {
 		fmt.Println("JSON 변환 오류:", err)
 		return
 	}
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	//Data Url로 전송
+	req, err := http.NewRequest("POST", dataUrl, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println("요청 생성 오류:", err)
 		return
