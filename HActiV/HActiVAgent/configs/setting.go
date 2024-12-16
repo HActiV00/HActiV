@@ -7,11 +7,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
 
 var (
+	DataSend     bool
 	RuleLocation string
 	HostRegion   string
 )
@@ -34,6 +36,7 @@ func HActiVSetting() {
 			"RuleLocation":   "/etc/HActiV/rules",
 			"API":            "TestAPIForBasic",
 			"DataUrl":        "http://localhost:8080/api/dashboard",
+			"DataSend":       "True",
 			"RuleUrl":        "http://localhost:8080/api/alert",
 			"Region":         "Asia/Seoul",
 			"LogLocation":    "/etc/HActiV/logs",
@@ -63,6 +66,10 @@ func HActiVSetting() {
 	ruleLocation := existingData["RuleLocation"]
 	api := existingData["API"]
 	dataurl := existingData["DataUrl"]
+	DataSend, err = strconv.ParseBool(strings.TrimSpace(existingData["DataSend"]))
+	if err != nil {
+		DataSend = true // 기본값 True
+	}
 	ruleurl := existingData["RuleUrl"]
 	HostRegion = existingData["Region"]
 	logLocation := existingData["LogLocation"]
@@ -77,6 +84,7 @@ func HActiVSetting() {
 	fmt.Printf("RuleLocation: %s\n", ruleLocation)
 	fmt.Printf("API: %s\n", api)
 	fmt.Printf("DataUrl: %s\n", dataurl)
+	fmt.Printf("DataSend: %t\n", DataSend)
 	fmt.Printf("RuleUrl: %s\n", ruleurl)
 	fmt.Printf("Region: %s\n", HostRegion)
 	fmt.Printf("LogLocation: %s\n", logLocation)

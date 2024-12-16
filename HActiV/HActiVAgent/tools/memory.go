@@ -241,23 +241,25 @@ func MemoryMonitoring() {
 
 				configs.MatchedEvent(policies, matchevent)
 
-				utils.DataSend(
-					"Memory",
-					matchevent.Time,
-					matchevent.ContainerName,
-					matchevent.Uid,
-					matchevent.Gid,
-					matchevent.Pid,
-					matchevent.Ppid,
-					matchevent.ProcessName,
-					matchevent.Syscall,
-					matchevent.StartAddr,
-					matchevent.EndAddr,
-					matchevent.Size,
-					matchevent.Prottemp,
-					matchevent.Prot,
-					matchevent.MappingType,
-				)
+				if configs.DataSend {
+					utils.DataSend(
+						"Memory",
+						matchevent.Time,
+						matchevent.ContainerName,
+						matchevent.Uid,
+						matchevent.Gid,
+						matchevent.Pid,
+						matchevent.Ppid,
+						matchevent.ProcessName,
+						matchevent.Syscall,
+						matchevent.StartAddr,
+						matchevent.EndAddr,
+						matchevent.Size,
+						matchevent.Prottemp,
+						matchevent.Prot,
+						matchevent.MappingType,
+					)
+				}
 
 				logger.Log(matchevent)
 

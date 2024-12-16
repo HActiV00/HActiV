@@ -118,9 +118,9 @@ func DeleteMonitoring() {
 
 				configs.MatchedEvent(policies, matchevent)
 				logger.Log(matchevent)
-
-				utils.DataSend("delete", matchevent.Time, containerInfo.Name, event.Uid, event.Gid, event.Pid, event.PPid, processName, filename)
-
+				if configs.DataSend {
+					utils.DataSend("delete", matchevent.Time, containerInfo.Name, event.Uid, event.Gid, event.Pid, event.PPid, processName, filename)
+				}
 			case lostCountData := <-lost:
 				lostCount += lostCountData
 			}

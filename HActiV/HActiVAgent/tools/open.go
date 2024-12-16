@@ -109,20 +109,21 @@ func OpenMonitoring() {
 
 				logger.Log(matchevent)
 
-				utils.DataSend(
-					"file_open",
-					matchevent.Time,
-					containerInfo.Name,
-					event.Uid,
-					event.Gid,
-					event.Pid,
-					event.PPid,
-					"open",
-					filename,
-					event.ReturnValue,
-					processName,
-				)
-
+				if configs.DataSend {
+					utils.DataSend(
+						"file_open",
+						matchevent.Time,
+						containerInfo.Name,
+						event.Uid,
+						event.Gid,
+						event.Pid,
+						event.PPid,
+						"open",
+						filename,
+						event.ReturnValue,
+						processName,
+					)
+				}
 			case lostCountData := <-lost:
 				Losts += lostCountData
 			case <-sig:

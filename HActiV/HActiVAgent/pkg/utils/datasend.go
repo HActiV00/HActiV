@@ -39,7 +39,10 @@ func DataSendSetting() {
 	apiKey = existingData["API"]
 	dataUrl = existingData["DataUrl"]
 	ruleUrl = existingData["RuleUrl"]
-	HostMonitoring, _ = strconv.ParseBool(existingData["HostMonitoring"])
+	HostMonitoring, err = strconv.ParseBool(existingData["HostMonitoring"])
+	if err != nil {
+		HostMonitoring = false // 기본값 false
+	}
 	LogLocation = existingData["LogLocation"]
 
 	if !strings.HasSuffix(LogLocation, "/") {

@@ -128,22 +128,24 @@ func HandleEvent(data unsafe.Pointer, policies []configs.Policy, logger *utils.D
 			stats.TotalSize,
 		)
 	*/
-	utils.DataSend(
-		"Network_traffic",
-		matchevent.Time,
-		containerInfo.Name,
-		srcIP,
-		srcType,
-		dstIP,
-		dstType,
-		protocolName,
-		int(event.PacketSize),
-		int(stats.PacketCount),
-		int(stats.TotalSize),
-		string(pathJSON),
-		direction,
-		"", "", "", "",
-	)
+	if configs.DataSend {
+		utils.DataSend(
+			"Network_traffic",
+			matchevent.Time,
+			containerInfo.Name,
+			srcIP,
+			srcType,
+			dstIP,
+			dstType,
+			protocolName,
+			int(event.PacketSize),
+			int(stats.PacketCount),
+			int(stats.TotalSize),
+			string(pathJSON),
+			direction,
+			"", "", "", "",
+		)
+	}
 }
 
 func HandleCombinedEvent(httpEvent HTTPEvent, networkEvent *Event, mntNs uint32, logger *utils.DualLogger) {
@@ -223,26 +225,27 @@ func HandleCombinedEvent(httpEvent HTTPEvent, networkEvent *Event, mntNs uint32,
 			direction,
 		)
 	*/
-
-	utils.DataSend(
-		"Network_traffic",
-		formattedTimestamp,
-		containerName,
-		httpEvent.SrcIP,
-		srcType,
-		httpEvent.DstIP,
-		dstType,
-		GetProtocolName(uint8(networkEvent.Protocol)),
-		int(networkEvent.PacketSize),
-		int(stats.PacketCount),
-		int(stats.TotalSize),
-		pathJSON,
-		direction,
-		httpEvent.Method,
-		httpEvent.Host,
-		httpEvent.URL,
-		httpEvent.Parameters,
-	)
+	if configs.DataSend {
+		utils.DataSend(
+			"Network_traffic",
+			formattedTimestamp,
+			containerName,
+			httpEvent.SrcIP,
+			srcType,
+			httpEvent.DstIP,
+			dstType,
+			GetProtocolName(uint8(networkEvent.Protocol)),
+			int(networkEvent.PacketSize),
+			int(stats.PacketCount),
+			int(stats.TotalSize),
+			pathJSON,
+			direction,
+			httpEvent.Method,
+			httpEvent.Host,
+			httpEvent.URL,
+			httpEvent.Parameters,
+		)
+	}
 }
 
 func HandleHTTPEvent(event HTTPEvent, mntNs uint32) {

@@ -115,9 +115,9 @@ func ExecveMonitoring() {
 
 				configs.MatchedEvent(policies, matchevent)
 				logger.Log(matchevent)
-
-				utils.DataSend("Systemcall", matchevent.Time, containerInfo.Name, event.Uid, event.Gid, event.Pid, event.Ppid, filename, processName, strings.Replace(args, "--color=auto", "", 1))
-
+				if configs.DataSend {
+					utils.DataSend("Systemcall", matchevent.Time, containerInfo.Name, event.Uid, event.Gid, event.Pid, event.Ppid, filename, processName, strings.Replace(args, "--color=auto", "", 1))
+				}
 			case lostCountData := <-lost:
 				lostCount += lostCountData
 			}
