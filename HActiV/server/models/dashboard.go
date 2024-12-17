@@ -15,8 +15,11 @@ import (
 )
 
 const (
-	kafkaBufferSize = 10000 // Updated buffer size
-	bufferThreshold = 6000  // 90% of buffer size
+	kafkaBufferSize          = 10000
+	bufferThreshold          = 6000 // 버퍼가 90% 찼을 때
+	DefaultDataRetentionDays = 10
+	maxRetries               = 30
+	retryInterval            = 10 * time.Second
 )
 
 // BasicApiData contains common fields for all API data structures
@@ -27,7 +30,7 @@ type BasicApiData struct {
 	Uid           uint32    `json:"uid"`
 	Gid           uint32    `json:"gid"`
 	Pid           uint32    `json:"pid"`
-	Pppid          uint32    `json:"ppid"`
+	Ppid          uint32    `json:"ppid"`
 }
 
 // ExecveApiData represents data for execve events
@@ -131,48 +134,96 @@ type HostMetricsApiData struct {
 	CpuCores    int       `json:"cpu_cores"`
 }
 
-var (
-	db                *sql.DB
-	dashboardData     []interface{}
-	dashboardDataLock sync.Mutex
-	kafkaBuffer       chan []byte
-)
-
-func getEnv(key, fallback string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-	return fallback
+type UserSettings struct {
+	DataRetentionDays int
 }
+
+var (
+	dashboardData []interface{}
+	dataMutex     sync.RWMutex
+	db            *sql.DB
+	db2           *sql.DB
+	kafkaBuffer   chan []byte
+	userSettings  UserSettings
+)
 
 func init() {
 	dashboardData = make([]interface{}, 0)
 	kafkaBuffer = make(chan []byte, kafkaBufferSize)
 
-	dbUser := getEnv("DB_USER", "hactiv_user")
-	dbPass := getEnv("DB_PASS", "Gorxlqmdbwj11!@#")
-	dbName := getEnv("DB_NAME", "hactiv_dashboard")
-	dbHost := getEnv("DB_HOST", "mysql")
-	dbPort := getEnv("DB_PORT", "3306")
-
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
-	var err error
-	db, err = sql.Open("mysql", dsn)
-	if err != nil {
-		log.Fatalf("Failed to connect to MySQL: %v", err)
-	}
-
-	if err = db.Ping(); err != nil {
-		logs.Error("Failed to ping MySQL: %v", err)
-		return
-	}
+	// Initialize both database connections
+	initDB()
+	initDB2()
 
 	createTables()
 
+	// 사용자 설정 초기화
+	userSettings = UserSettings{
+		DataRetentionDays: DefaultDataRetentionDays,
+	}
+
 	go processKafkaMessages()
+	go periodicDataCleanup()
+}
+
+func initDB() {
+	var err error
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASS"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"))
+
+	db, err = sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatalf("Failed to open MySQL connection: %v", err)
+	}
+
+	for i := 0; i < maxRetries; i++ {
+		if err = db.Ping(); err == nil {
+			logs.Info("Successfully connected to MySQL (DB1)")
+			return
+		}
+		logs.Warn("Failed to connect to MySQL (DB1). Retrying in %d seconds... (Attempt %d/%d)", retryInterval/time.Second, i+1, maxRetries)
+		time.Sleep(retryInterval)
+	}
+
+	logs.Error("Failed to connect to MySQL (DB1) after %d attempts: %v", maxRetries, err)
+}
+
+func initDB2() {
+	var err error
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		os.Getenv("DB2_USER"),
+		os.Getenv("DB2_PASS"),
+		os.Getenv("DB2_HOST"),
+		os.Getenv("DB2_PORT"),
+		os.Getenv("DB2_NAME"))
+
+	db2, err = sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatalf("Failed to open MySQL connection (DB2): %v", err)
+	}
+
+	for i := 0; i < maxRetries; i++ {
+		if err = db2.Ping(); err == nil {
+			logs.Info("Successfully connected to MySQL (DB2)")
+			return
+		}
+		logs.Warn("Failed to connect to MySQL (DB2). Retrying in %d seconds... (Attempt %d/%d)", retryInterval/time.Second, i+1, maxRetries)
+		time.Sleep(retryInterval)
+	}
+
+	logs.Error("Failed to connect to MySQL (DB2) after %d attempts: %v", maxRetries, err)
 }
 
 func createTables() {
+	if db == nil {
+		logs.Error("Database connection is not initialized")
+		return
+	}
+
 	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS events (
 			id INT AUTO_INCREMENT PRIMARY KEY,
@@ -208,8 +259,8 @@ func SaveNetworkData(data *NetworkApiData) error {
 }
 
 func flushBufferToMySQL() {
-	dashboardDataLock.Lock()
-	defer dashboardDataLock.Unlock()
+	dataMutex.Lock()
+	defer dataMutex.Unlock()
 
 	if len(kafkaBuffer) == 0 {
 		return
@@ -261,12 +312,12 @@ func processKafkaMessages() {
 			continue
 		}
 
-		dashboardDataLock.Lock()
-		dashboardData = append(dashboardData, data)
+		dataMutex.Lock()
+		dashboardData = append([]interface{}{data}, dashboardData...)
 		if len(dashboardData) > 1000 { // 대시보드 데이터 크기 제한
 			dashboardData = dashboardData[:1000]
 		}
-		dashboardDataLock.Unlock()
+		dataMutex.Unlock()
 
 		// 여기서 WebSocket 클라이언트에게 메시지를 보냅니다
 		// sendToWebSocket(msg)
@@ -276,8 +327,8 @@ func processKafkaMessages() {
 func GetDashboardData(eventType string, startTime, endTime time.Time) ([]interface{}, error) {
 	if startTime.IsZero() && endTime.IsZero() {
 		// Kafka 버퍼의 실시간 데이터 반환
-		dashboardDataLock.RLock()
-		defer dashboardDataLock.RUnlock()
+		dataMutex.RLock()
+		defer dataMutex.RUnlock()
 
 		if eventType == "all" {
 			return dashboardData, nil
@@ -298,6 +349,7 @@ func GetDashboardData(eventType string, startTime, endTime time.Time) ([]interfa
 	query := `
 		SELECT data FROM events
 		WHERE event_type = ? AND timestamp BETWEEN ? AND ?
+		AND timestamp >= DATE_SUB(NOW(), INTERVAL ? DAY)
 		ORDER BY timestamp DESC
 		LIMIT 1000
 	`
@@ -305,6 +357,7 @@ func GetDashboardData(eventType string, startTime, endTime time.Time) ([]interfa
 		query = `
 			SELECT data FROM events
 			WHERE timestamp BETWEEN ? AND ?
+			AND timestamp >= DATE_SUB(NOW(), INTERVAL ? DAY)
 			ORDER BY timestamp DESC
 			LIMIT 1000
 		`
@@ -313,9 +366,9 @@ func GetDashboardData(eventType string, startTime, endTime time.Time) ([]interfa
 	var rows *sql.Rows
 	var err error
 	if eventType == "all" {
-		rows, err = db.Query(query, startTime, endTime)
+		rows, err = db.Query(query, startTime, endTime, userSettings.DataRetentionDays)
 	} else {
-		rows, err = db.Query(query, eventType, startTime, endTime)
+		rows, err = db.Query(query, eventType, startTime, endTime, userSettings.DataRetentionDays)
 	}
 
 	if err != nil {
@@ -490,7 +543,7 @@ func DeleteContainerData(containerName string) error {
 		return fmt.Errorf("failed to commit transaction: %v", err)
 	}
 
-	dashboardDataLock.Lock()
+	dataMutex.Lock()
 	newData := make([]interface{}, 0, len(dashboardData))
 	for _, item := range dashboardData {
 		if itemMap, ok := item.(map[string]interface{}); ok {
@@ -500,7 +553,7 @@ func DeleteContainerData(containerName string) error {
 		}
 	}
 	dashboardData = newData
-	dashboardDataLock.Unlock()
+	dataMutex.Unlock()
 
 	return nil
 }
@@ -610,26 +663,31 @@ func GetMessageChannel() chan []byte {
 	return kafkaBuffer
 }
 
-func GetDashboardData_() ([]interface{}, error) {
-	dashboardDataLock.Lock()
-	defer dashboardDataLock.Unlock()
-	return dashboardData, nil
-}
-
-func UpdateDashboardData(data interface{}) error {
-	dashboardDataLock.Lock()
-	defer dashboardDataLock.Unlock()
-	dashboardData = append(dashboardData, data)
-	return nil
-}
-
-func SendToKafka(message []byte) {
-	kafkaBuffer <- message
-}
-
-func consumeKafkaMessages() {
-	for msg := range kafkaBuffer {
-		kafka.SendMessage(msg)
+func periodicDataCleanup() {
+	for {
+		time.Sleep(24 * time.Hour) // 매일 실행
+		cleanupOldData()
 	}
+}
+
+func cleanupOldData() {
+	if db == nil {
+		logs.Error("Database connection is not initialized")
+		return
+	}
+
+	retentionPeriod := time.Now().AddDate(0, 0, -userSettings.DataRetentionDays)
+	_, err := db.Exec("DELETE FROM events WHERE timestamp < ?", retentionPeriod)
+	if err != nil {
+		logs.Error("Failed to cleanup old data: %v", err)
+	}
+}
+
+func UpdateUserSettings(retentionDays int) error {
+	if retentionDays < DefaultDataRetentionDays {
+		return fmt.Errorf("retention period must be at least %d days", DefaultDataRetentionDays)
+	}
+	userSettings.DataRetentionDays = retentionDays
+	return nil
 }
 
