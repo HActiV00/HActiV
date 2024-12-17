@@ -43,6 +43,7 @@ services:
       - DB_USER=hactiv_user
       - DB_PASS=Gorxlqmdbwj11!@#
       - DB_NAME=hactiv_dashboard
+    command: ["/bin/sh", "-c", "/wait-for-it.sh kafka 9092 && /wait-for-it.sh mysql 3306 && ./main"]
 
   hactiv-web-frontend:
     build:
