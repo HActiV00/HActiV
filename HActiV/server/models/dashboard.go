@@ -7,6 +7,7 @@ import (
 	"log"
 	"sync"
 	"time"
+	"os"
 
 	"github.com/beego/beego/v2/core/logs"
 	"server/kafka"
@@ -147,8 +148,30 @@ func init() {
 	dashboardData = make([]interface{}, 0)
 	kafkaBuffer = make(chan []byte, kafkaBufferSize)
 
+	dbUser := os.Getenv("DB_USER")
+	if dbUser == "" {
+		dbUser = "hactiv_user"
+	}
+	dbPass := os.Getenv("DB_PASS")
+	if dbPass == "" {
+		dbPass = "Gorxlqmdbwj11!@#"
+	}
+	dbHost := os.Getenv("DB_HOST")
+	if dbHost == "" {
+		dbHost = "localhost"
+	}
+	dbPort := os.Getenv("DB_PORT")
+	if dbPort == "" {
+		dbPort = "3306"
+	}
+	dbName := os.Getenv("DB_NAME")
+	if dbName == "" {
+		dbName = "hactiv_dashboard"
+	}
+
 	var err error
-	db, err = sql.Open("mysql", "hactiv_user:Gorxlqmdbwj11!@#@tcp(localhost:3306)/hactiv_dashboard")
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
+	db, err = sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatalf("Failed to connect to MySQL: %v", err)
 	}
