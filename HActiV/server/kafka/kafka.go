@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	producer  sarama.SyncProducer
-	consumer  sarama.Consumer
-	consumers map[string]sarama.PartitionConsumer
-	mu        sync.Mutex
+	producer       sarama.SyncProducer
+	consumer       sarama.Consumer
+	consumers      map[string]sarama.PartitionConsumer
+	mu            sync.Mutex
 	MessageChannel chan []byte
 )
 
@@ -39,6 +39,21 @@ func InitKafka(brokers []string) error {
 		return fmt.Errorf("failed to create Kafka consumer: %w", err)
 	}
 
+	return nil
+}
+
+func SendMessage(topic string, message []byte) error {
+	msg := &sarama.ProducerMessage{
+		Topic: topic,
+		Value: sarama.ByteEncoder(message),
+	}
+
+	partition, offset, err := producer.SendMessage(msg)
+	if err != nil {
+		return fmt.Errorf("failed to send message: %w", err)
+	}
+
+	logs.Info("Message successfully sent to topic: %s, partition: %d, offset: %d", topic, partition, offset)
 	return nil
 }
 
@@ -126,6 +141,9 @@ func CloseKafka() {
 		}
 	}
 
+	mu.Lock()
+	defer mu.Unlock()
+	
 	for topic, partitionConsumer := range consumers {
 		if err := partitionConsumer.Close(); err != nil {
 			logs.Error("Error closing Kafka consumer for topic %s: %v", topic, err)
