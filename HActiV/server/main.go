@@ -14,7 +14,21 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+func getEnv(key, fallback string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return fallback
+}
+
 func getConfigString(key string) string {
+	// First try environment variable
+	envKey := key
+	if value := os.Getenv(envKey); value != "" {
+		return value
+	}
+	
+	// Then try config file
 	value := beego.AppConfig.DefaultString(key, "")
 	if value == "" {
 		logs.Error("Failed to get config value for %s", key)
@@ -47,11 +61,11 @@ func init() {
 	}
 
 	// MySQL 연결 설정
-	dbUser := beego.AppConfig.DefaultString("db_user", "")
-	dbPass := beego.AppConfig.DefaultString("db_pass", "")
-	dbName := beego.AppConfig.DefaultString("db_name", "")
-	dbHost := beego.AppConfig.DefaultString("db_host", "localhost")
-	dbPort := beego.AppConfig.DefaultString("db_port", "3306")
+	dbUser := getEnv("DB_USER", beego.AppConfig.DefaultString("db_user", "hactiv_user"))
+	dbPass := getEnv("DB_PASS", beego.AppConfig.DefaultString("db_pass", "Gorxlqmdbwj11!@#"))
+	dbName := getEnv("DB_NAME", beego.AppConfig.DefaultString("db_name", "hactiv_dashboard"))
+	dbHost := getEnv("DB_HOST", beego.AppConfig.DefaultString("db_host", "mysql"))
+	dbPort := getEnv("DB_PORT", beego.AppConfig.DefaultString("db_port", "3306"))
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
 	db, err := sql.Open("mysql", dsn)
