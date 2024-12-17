@@ -26,7 +26,6 @@ services:
       MYSQL_PASSWORD: Gorxlqmdbwj11!@#
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   hactiv-web-backend:
     build:
@@ -44,11 +43,6 @@ services:
       - DB_USER=hactiv_user
       - DB_PASS=Gorxlqmdbwj11!@#
       - DB_NAME=hactiv_dashboard
-      - DB2_HOST=mysql
-      - DB2_PORT=3306
-      - DB2_USER=hactiv_user
-      - DB2_PASS=Gorxlqmdbwj11!@#
-      - DB2_NAME=Platform
 
   hactiv-web-frontend:
     build:
