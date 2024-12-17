@@ -51,8 +51,8 @@ func init() {
 	dbUser := beego.AppConfig.DefaultString("db_user", "")
 	dbPass := beego.AppConfig.DefaultString("db_pass", "")
 	dbName := beego.AppConfig.DefaultString("db_name", "")
-	dbHost := beego.AppConfig.DefaultString("db_host", "localhost")
-	dbPort := beego.AppConfig.DefaultString("db_port", "3306")
+	dbHost := beego.AppConfig.DefaultString("db_host", "")
+	dbPort := beego.AppConfig.DefaultString("db_port", "")
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
 	db, err := sql.Open("mysql", dsn)
