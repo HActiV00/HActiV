@@ -2,7 +2,7 @@ FROM golang:1.23
 
 WORKDIR /app
 
-# netcat 설치
+# Install netcat
 RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
 
 COPY server/ ./
@@ -14,5 +14,6 @@ RUN chmod +x /wait-for-it.sh
 
 EXPOSE 8080
 
-# 백엔드는 Kafka만 기다립니다.
-CMD ["/wait-for-it.sh", "kafka", "9092", "./main"]
+# Wait for both Kafka and MySQL before starting the backend
+CMD ["/bin/sh", "-c", "/wait-for-it.sh kafka 9092 && /wait-for-it.sh mysql 3306 && ./main"]
+
