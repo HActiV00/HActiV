@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"sync"
 	"time"
 
@@ -15,11 +14,9 @@ import (
 )
 
 const (
-	kafkaBufferSize          = 10000
-	bufferThreshold          = 6000 // 버퍼가 90% 찼을 때
+	kafkaBufferSize = 10000
+	bufferThreshold = 6000 // 버퍼가 90% 찼을 때
 	DefaultDataRetentionDays = 10
-	maxRetries               = 30
-	retryInterval            = 10 * time.Second
 )
 
 // BasicApiData contains common fields for all API data structures
@@ -142,7 +139,6 @@ var (
 	dashboardData []interface{}
 	dataMutex     sync.RWMutex
 	db            *sql.DB
-	db2           *sql.DB
 	kafkaBuffer   chan []byte
 	userSettings  UserSettings
 )
@@ -151,9 +147,16 @@ func init() {
 	dashboardData = make([]interface{}, 0)
 	kafkaBuffer = make(chan []byte, kafkaBufferSize)
 
-	// Initialize both database connections
-	initDB()
-	initDB2()
+	var err error
+	db, err = sql.Open("mysql", "hactiv_user:Gorxlqmdbwj11!@#@tcp(localhost:3306)/hactiv_dashboard")
+	if err != nil {
+		log.Fatalf("Failed to connect to MySQL: %v", err)
+	}
+
+	if err = db.Ping(); err != nil {
+		logs.Error("Failed to ping MySQL: %v", err)
+		return
+	}
 
 	createTables()
 
@@ -166,64 +169,7 @@ func init() {
 	go periodicDataCleanup()
 }
 
-func initDB() {
-	var err error
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASS"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"))
-
-	db, err = sql.Open("mysql", dsn)
-	if err != nil {
-		log.Fatalf("Failed to open MySQL connection: %v", err)
-	}
-
-	for i := 0; i < maxRetries; i++ {
-		if err = db.Ping(); err == nil {
-			logs.Info("Successfully connected to MySQL (DB1)")
-			return
-		}
-		logs.Warn("Failed to connect to MySQL (DB1). Retrying in %d seconds... (Attempt %d/%d)", retryInterval/time.Second, i+1, maxRetries)
-		time.Sleep(retryInterval)
-	}
-
-	logs.Error("Failed to connect to MySQL (DB1) after %d attempts: %v", maxRetries, err)
-}
-
-func initDB2() {
-	var err error
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-		os.Getenv("DB2_USER"),
-		os.Getenv("DB2_PASS"),
-		os.Getenv("DB2_HOST"),
-		os.Getenv("DB2_PORT"),
-		os.Getenv("DB2_NAME"))
-
-	db2, err = sql.Open("mysql", dsn)
-	if err != nil {
-		log.Fatalf("Failed to open MySQL connection (DB2): %v", err)
-	}
-
-	for i := 0; i < maxRetries; i++ {
-		if err = db2.Ping(); err == nil {
-			logs.Info("Successfully connected to MySQL (DB2)")
-			return
-		}
-		logs.Warn("Failed to connect to MySQL (DB2). Retrying in %d seconds... (Attempt %d/%d)", retryInterval/time.Second, i+1, maxRetries)
-		time.Sleep(retryInterval)
-	}
-
-	logs.Error("Failed to connect to MySQL (DB2) after %d attempts: %v", maxRetries, err)
-}
-
 func createTables() {
-	if db == nil {
-		logs.Error("Database connection is not initialized")
-		return
-	}
-
 	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS events (
 			id INT AUTO_INCREMENT PRIMARY KEY,
@@ -671,11 +617,6 @@ func periodicDataCleanup() {
 }
 
 func cleanupOldData() {
-	if db == nil {
-		logs.Error("Database connection is not initialized")
-		return
-	}
-
 	retentionPeriod := time.Now().AddDate(0, 0, -userSettings.DataRetentionDays)
 	_, err := db.Exec("DELETE FROM events WHERE timestamp < ?", retentionPeriod)
 	if err != nil {
