@@ -16,7 +16,7 @@ import (
 
 const (
 	kafkaBufferSize = 10000
-	bufferThreshold = 6000 // 버퍼가 90% 찼을 때
+	bufferThreshold = 6000 // 버퍼가 60% 찼을 때
 	DefaultDataRetentionDays = 10
 )
 
