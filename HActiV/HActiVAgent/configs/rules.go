@@ -256,7 +256,7 @@ func evaluateSingleCondition(condition string) bool {
 	parts := strings.Split(condition, " ")
 	if len(parts) > 3 {
 		for i, v := range parts {
-			if v == "==" || v == "!=" || v == "()" {
+			if v == "==" || v == "!=" || v == "()" || v == "!()" {
 				left := strings.Join(parts[:i], " ")
 				operator := parts[i]
 				right := strings.Join(parts[i+1:], " ")
@@ -278,6 +278,8 @@ func compareString(a, op, b string) bool {
 		return a != b
 	case "()":
 		return strings.Contains(a, b)
+	case "!()":
+		return !strings.Contains(a, b)
 	}
 	aInt, _ := strconv.Atoi(a)
 	bInt, _ := strconv.Atoi(b)
@@ -337,7 +339,7 @@ func isTimeInRange(checkTime, start, end string) bool {
 	e, _ := time.Parse(layout, end)
 
 	if end == "24:00" {
-		return true
+		e = e.Add(24 * time.Hour)
 	}
 	return (t.After(s) || t.Equal(s)) && (t.Before(e) || t.Equal(e))
 }
