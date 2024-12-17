@@ -4,7 +4,7 @@
   "LogLocation": "/etc/HActiV/logs",
   "Region": "Asia/Seoul",
   "RuleLocation": "/etc/HActiV/rules",
-  "DataUrl": "https://localhost:8080/api/dashboard",
+  "DataUrl": "http://localhost:8080/api/dashboard",
   "DataSend": "True",
-  "RuleUrl": "https://localhost:8080/api/alert"
+  "RuleUrl": "http://localhost:8080/api/alert"
 }
