@@ -11,8 +11,7 @@ func init() {
 
 	// WebSocket 연결을 위한 라우트 추가
 	beego.Router("/ws", &controllers.DashboardController{}, "get:WebSocketHandler")
-	beego.Router("/health", &controllers.HealthController{})
-	
+
 	// 정적 파일 서빙 (옵션)
 	beego.SetStaticPath("/static", "static")
 }
