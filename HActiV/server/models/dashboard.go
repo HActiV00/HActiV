@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"sync"
 	"time"
 
@@ -14,8 +15,8 @@ import (
 )
 
 const (
-	kafkaBufferSize = 5000
-	bufferThreshold = 4500 // 버퍼가 90% 찼을 때
+	kafkaBufferSize = 10000 // Updated buffer size
+	bufferThreshold = 6000  // 90% of buffer size
 )
 
 // BasicApiData contains common fields for all API data structures
@@ -26,7 +27,7 @@ type BasicApiData struct {
 	Uid           uint32    `json:"uid"`
 	Gid           uint32    `json:"gid"`
 	Pid           uint32    `json:"pid"`
-	Ppid          uint32    `json:"ppid"`
+	Pppid          uint32    `json:"ppid"`
 }
 
 // ExecveApiData represents data for execve events
@@ -131,18 +132,32 @@ type HostMetricsApiData struct {
 }
 
 var (
-	dashboardData []interface{}
-	dataMutex     sync.RWMutex
-	db            *sql.DB
-	kafkaBuffer   chan []byte
+	db                *sql.DB
+	dashboardData     []interface{}
+	dashboardDataLock sync.Mutex
+	kafkaBuffer       chan []byte
 )
+
+func getEnv(key, fallback string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return fallback
+}
 
 func init() {
 	dashboardData = make([]interface{}, 0)
 	kafkaBuffer = make(chan []byte, kafkaBufferSize)
 
+	dbUser := getEnv("DB_USER", "hactiv_user")
+	dbPass := getEnv("DB_PASS", "Gorxlqmdbwj11!@#")
+	dbName := getEnv("DB_NAME", "hactiv_dashboard")
+	dbHost := getEnv("DB_HOST", "mysql")
+	dbPort := getEnv("DB_PORT", "3306")
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
 	var err error
-	db, err = sql.Open("mysql", "hactiv_user:Gorxlqmdbwj11!@#@tcp(localhost:3306)/hactiv_dashboard")
+	db, err = sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatalf("Failed to connect to MySQL: %v", err)
 	}
@@ -193,8 +208,8 @@ func SaveNetworkData(data *NetworkApiData) error {
 }
 
 func flushBufferToMySQL() {
-	dataMutex.Lock()
-	defer dataMutex.Unlock()
+	dashboardDataLock.Lock()
+	defer dashboardDataLock.Unlock()
 
 	if len(kafkaBuffer) == 0 {
 		return
@@ -246,12 +261,12 @@ func processKafkaMessages() {
 			continue
 		}
 
-		dataMutex.Lock()
-		dashboardData = append([]interface{}{data}, dashboardData...)
+		dashboardDataLock.Lock()
+		dashboardData = append(dashboardData, data)
 		if len(dashboardData) > 1000 { // 대시보드 데이터 크기 제한
 			dashboardData = dashboardData[:1000]
 		}
-		dataMutex.Unlock()
+		dashboardDataLock.Unlock()
 
 		// 여기서 WebSocket 클라이언트에게 메시지를 보냅니다
 		// sendToWebSocket(msg)
@@ -261,8 +276,8 @@ func processKafkaMessages() {
 func GetDashboardData(eventType string, startTime, endTime time.Time) ([]interface{}, error) {
 	if startTime.IsZero() && endTime.IsZero() {
 		// Kafka 버퍼의 실시간 데이터 반환
-		dataMutex.RLock()
-		defer dataMutex.RUnlock()
+		dashboardDataLock.RLock()
+		defer dashboardDataLock.RUnlock()
 
 		if eventType == "all" {
 			return dashboardData, nil
@@ -475,7 +490,7 @@ func DeleteContainerData(containerName string) error {
 		return fmt.Errorf("failed to commit transaction: %v", err)
 	}
 
-	dataMutex.Lock()
+	dashboardDataLock.Lock()
 	newData := make([]interface{}, 0, len(dashboardData))
 	for _, item := range dashboardData {
 		if itemMap, ok := item.(map[string]interface{}); ok {
@@ -485,7 +500,7 @@ func DeleteContainerData(containerName string) error {
 		}
 	}
 	dashboardData = newData
-	dataMutex.Unlock()
+	dashboardDataLock.Unlock()
 
 	return nil
 }
@@ -594,3 +609,27 @@ func GetKafkaChannel() chan []byte {
 func GetMessageChannel() chan []byte {
 	return kafkaBuffer
 }
+
+func GetDashboardData_() ([]interface{}, error) {
+	dashboardDataLock.Lock()
+	defer dashboardDataLock.Unlock()
+	return dashboardData, nil
+}
+
+func UpdateDashboardData(data interface{}) error {
+	dashboardDataLock.Lock()
+	defer dashboardDataLock.Unlock()
+	dashboardData = append(dashboardData, data)
+	return nil
+}
+
+func SendToKafka(message []byte) {
+	kafkaBuffer <- message
+}
+
+func consumeKafkaMessages() {
+	for msg := range kafkaBuffer {
+		kafka.SendMessage(msg)
+	}
+}
+
