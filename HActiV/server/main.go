@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"time"
 
 	"server/kafka"
 	"server/models"
@@ -14,21 +15,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func getEnv(key, fallback string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-	return fallback
-}
-
 func getConfigString(key string) string {
-	// First try environment variable
-	envKey := key
-	if value := os.Getenv(envKey); value != "" {
-		return value
-	}
-	
-	// Then try config file
 	value := beego.AppConfig.DefaultString(key, "")
 	if value == "" {
 		logs.Error("Failed to get config value for %s", key)
@@ -61,11 +48,11 @@ func init() {
 	}
 
 	// MySQL 연결 설정
-	dbUser := getEnv("DB_USER", beego.AppConfig.DefaultString("db_user", "hactiv_user"))
-	dbPass := getEnv("DB_PASS", beego.AppConfig.DefaultString("db_pass", "Gorxlqmdbwj11!@#"))
-	dbName := getEnv("DB_NAME", beego.AppConfig.DefaultString("db_name", "hactiv_dashboard"))
-	dbHost := getEnv("DB_HOST", beego.AppConfig.DefaultString("db_host", "mysql"))
-	dbPort := getEnv("DB_PORT", beego.AppConfig.DefaultString("db_port", "3306"))
+	dbUser := beego.AppConfig.DefaultString("db_user", "")
+	dbPass := beego.AppConfig.DefaultString("db_pass", "")
+	dbName := beego.AppConfig.DefaultString("db_name", "")
+	dbHost := beego.AppConfig.DefaultString("db_host", "localhost")
+	dbPort := beego.AppConfig.DefaultString("db_port", "3306")
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
 	db, err := sql.Open("mysql", dsn)
@@ -80,7 +67,25 @@ func init() {
 		os.Exit(1)
 	}
 
-	logs.Info("Successfully connected to MySQL")
+
+	// MySQL 연결 재시도 로직 추가
+	maxRetries := 5
+	retryInterval := time.Second * 5
+
+	for i := 0; i < maxRetries; i++ {
+		if err = db.Ping(); err == nil {
+			logs.Info("Successfully connected to MySQL")
+			break
+		}
+		logs.Warn("Failed to connect to MySQL. Retrying in %d seconds... (Attempt %d/%d)",
+			retryInterval/time.Second, i+1, maxRetries)
+		time.Sleep(retryInterval)
+	}
+
+	if err != nil {
+		logs.Error("Failed to connect to MySQL after %d attempts: %v", maxRetries, err)
+		os.Exit(1)
+	}
 }
 
 func main() {
