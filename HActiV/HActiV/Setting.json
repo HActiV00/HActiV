@@ -4,5 +4,7 @@
   "LogLocation": "/etc/HActiV/logs",
   "Region": "Asia/Seoul",
   "RuleLocation": "/etc/HActiV/rules",
-  "Url": "https://hactiv-dev.run.goorm.site/api/dashboard"
+  "DataUrl": "https://localhost:8080/api/dashboard",
+  "DataSend": "True",
+  "RuleUrl": "https://localhost:8080/api/alert"
 }
