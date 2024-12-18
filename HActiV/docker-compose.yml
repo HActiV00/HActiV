@@ -53,6 +53,8 @@ services:
       - "3000:3000"
     depends_on:
       - hactiv-web-backend
+    environment:
+      - REACT_APP_API_URL=http://hactiv-web-backend:8080
 
   hactiv:
     image: hactiv-image
