@@ -1,5 +1,21 @@
 [
   {
+    "event_name": "HactiV exception",
+    "description": "HactiV 컨테이너 예외처리",
+    "usage": true,
+    "condition": "%ContainerName% () HActiV",
+    "action": "ignore",
+    "time_conditions": null
+  },
+  {
+    "event_name": "HactiV exception",
+    "description": "HactiV 컨테이너 예외처리",
+    "usage": true,
+    "condition": "%ContainerName% () hactiv",
+    "action": "ignore",
+    "time_conditions": null
+  },
+  {
     "event_name": "print all network event",
     "description": "모든 network 이벤트 출력",
     "usage": false,
