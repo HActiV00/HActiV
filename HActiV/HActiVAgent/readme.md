@@ -24,7 +24,7 @@ sudo go run main.go <function_number(s)>
 
 1. 시스템 매트릭스 모니터링
    
-2. execv 시스템 콜 모니터링
+2. execve 시스템 콜 모니터링
 
 3. 파일 삭제 모니터링
 
