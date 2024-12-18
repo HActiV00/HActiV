@@ -4,11 +4,10 @@
 package bpfcode
 
 const MemoryCcode = `
-#include <uapi/linux/ptrace.h>
-#include <linux/sched.h>
-#include <linux/mm_types.h>
 #include <linux/nsproxy.h>
-#include <linux/ns_common.h>
+#include <uapi/linux/ptrace.h>
+#include <linux/mm_types.h>
+#include <net/net_namespace.h>
 #include <linux/cred.h>
 #include <linux/mm.h>
 
@@ -29,10 +28,6 @@ struct event_t {
     char mapping_type[16];
 };
 
-struct mnt_namespace {
-    struct ns_common ns;
-};
-
 TRACEPOINT_PROBE(syscalls, sys_enter_mmap) {
     struct event_t event = {};
     u64 ugid = bpf_get_current_uid_gid();
@@ -48,10 +43,17 @@ TRACEPOINT_PROBE(syscalls, sys_enter_mmap) {
     event.ppid = ppid;
 
     struct nsproxy *nsproxy;
-    struct mnt_namespace *mnt_ns;
-    bpf_probe_read_kernel(&nsproxy, sizeof(nsproxy), &task->nsproxy);
-    bpf_probe_read_kernel(&mnt_ns, sizeof(mnt_ns), &nsproxy->mnt_ns);
-    bpf_probe_read_kernel(&event.namespaceinum, sizeof(event.namespaceinum), &mnt_ns->ns.inum);
+    struct net *net_ns;
+    unsigned int inum;
+    if (bpf_probe_read_kernel(&nsproxy, sizeof(nsproxy), &task->nsproxy))
+        return 0;
+    // net_ns 읽기
+    bpf_probe_read(&net_ns, sizeof(net_ns), &nsproxy->net_ns);
+    
+    // net namespace inode 번호 읽기
+    bpf_probe_read(&inum, sizeof(inum), &net_ns->ns.inum);
+    
+    event.namespaceinum = inum;
 
     bpf_get_current_comm(&event.comm, sizeof(event.comm));
     __builtin_memcpy(&event.syscall, "mmap", 4);
@@ -79,10 +81,17 @@ TRACEPOINT_PROBE(syscalls, sys_enter_mprotect) {
     event.ppid = ppid;
 
     struct nsproxy *nsproxy;
-    struct mnt_namespace *mnt_ns;
-    bpf_probe_read_kernel(&nsproxy, sizeof(nsproxy), &task->nsproxy);
-    bpf_probe_read_kernel(&mnt_ns, sizeof(mnt_ns), &nsproxy->mnt_ns);
-    bpf_probe_read_kernel(&event.namespaceinum, sizeof(event.namespaceinum), &mnt_ns->ns.inum);
+    struct net *net_ns;
+    unsigned int inum;
+    if (bpf_probe_read_kernel(&nsproxy, sizeof(nsproxy), &task->nsproxy))
+        return 0;
+    // net_ns 읽기
+    bpf_probe_read(&net_ns, sizeof(net_ns), &nsproxy->net_ns);
+    
+    // net namespace inode 번호 읽기
+    bpf_probe_read(&inum, sizeof(inum), &net_ns->ns.inum);
+    
+    event.namespaceinum = inum;
 
     bpf_get_current_comm(&event.comm, sizeof(event.comm));
     __builtin_memcpy(&event.syscall, "mprotect", 8);

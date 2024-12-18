@@ -97,9 +97,14 @@ func DeleteMonitoring() {
 					continue
 				}
 
+				containerNamespaces := docker.GetContainer()
 				containerInfo, exists := containerNamespaces[uint64(event.NamespaceInum)]
 				if !exists {
-					continue
+					if utils.HostMonitoring {
+						containerInfo.Name = "H"
+					} else {
+						continue
+					}
 				}
 
 				processName := string(bytes.Trim(event.Comm[:], "\x00"))

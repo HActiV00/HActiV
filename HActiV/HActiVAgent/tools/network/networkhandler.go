@@ -76,8 +76,13 @@ func HandleEvent(data unsafe.Pointer, policies []configs.Policy, logger *utils.D
 	containerNamespaces := docker.GetContainer()
 	containerInfo, exists := containerNamespaces[uint64(event.MntNs)]
 	if !exists {
-		return
+		if utils.HostMonitoring {
+			containerInfo.Name = "H"
+		} else {
+			return
+		}
 	}
+
 
 	updateContainerStats(containerInfo.Name, event.PacketSize, event.IsOutgoing)
 	//matchevent Tool network -> Network_traffic 수정 Datasend와 일치 시키기 위해
@@ -163,6 +168,8 @@ func HandleCombinedEvent(httpEvent HTTPEvent, networkEvent *Event, mntNs uint32,
 	containerName := "Unknown"
 	if exists {
 		containerName = containerInfo.Name
+	} else if utils.HostMonitoring{
+		containerName = "H"
 	}
 
 	if containerName == "Unknown" {
@@ -188,6 +195,7 @@ func HandleCombinedEvent(httpEvent HTTPEvent, networkEvent *Event, mntNs uint32,
 		log.Printf("Error generating traffic path JSON: %v", err)
 		return
 	}
+
 	//matchevent Tool network -> Network_traffic 수정 Datasend와 일치 시키기 위해
 	matchevent := utils.Event{
 		Tool:          "Network_traffic",
@@ -225,6 +233,7 @@ func HandleCombinedEvent(httpEvent HTTPEvent, networkEvent *Event, mntNs uint32,
 			direction,
 		)
 	*/
+
 	if configs.DataSend {
 		utils.DataSend(
 			"Network_traffic",

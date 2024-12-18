@@ -90,8 +90,13 @@ func OpenMonitoring() {
 				containerNamespaces := docker.GetContainer()
 				containerInfo, exists := containerNamespaces[uint64(event.NamespaceInum)]
 				if !exists {
-					continue
+					if utils.HostMonitoring {
+						containerInfo.Name = "H"
+					} else {
+						continue
+					}
 				}
+
 				//matchevent Tool open -> file_open 수정 Datasend와 일치 시키기 위해
 				matchevent := utils.Event{
 					Tool:          "file_open",

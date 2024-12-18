@@ -5,9 +5,9 @@ package bpfcode
 
 const OpenCcode = `
 #include <uapi/linux/ptrace.h>
+#include <net/net_namespace.h>
+#include <linux/cred.h>
 #include <linux/nsproxy.h>
-#include <linux/sched.h>
-#include <linux/ns_common.h>
 
 struct event_t {
     u32 pid;
@@ -18,13 +18,6 @@ struct event_t {
     char comm[TASK_COMM_LEN];
     char filename[256];
     u32 namespaceinum;
-};
-
-struct mnt_namespace {
-    #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 11, 0)
-        atomic_t count;
-    #endif
-    struct ns_common ns;
 };
 
 BPF_PERF_OUTPUT(events);
@@ -44,20 +37,19 @@ int trace_sys_enter_openat(struct tracepoint__syscalls__sys_enter_openat *args)
         return 0;
     
     struct nsproxy *nsproxy;
-    struct mnt_namespace *mnt_ns;
+    struct net *net_ns;
     unsigned int inum;
-    u64 ns_id;
-
     if (bpf_probe_read_kernel(&nsproxy, sizeof(nsproxy), &task->nsproxy))
         return 0;
-    if (bpf_probe_read_kernel(&mnt_ns, sizeof(mnt_ns), &nsproxy->mnt_ns))
-        return 0;
-    if (bpf_probe_read_kernel(&inum, sizeof(inum), &mnt_ns->ns.inum))
-        return 0;
-    event.namespaceinum =  inum;
+    // net_ns 읽기
+    bpf_probe_read(&net_ns, sizeof(net_ns), &nsproxy->net_ns);
+    
+    // net namespace inode 번호 읽기
+    bpf_probe_read(&inum, sizeof(inum), &net_ns->ns.inum);
+    
+    event.namespaceinum = inum;
 
     bpf_get_current_comm(&event.comm, sizeof(event.comm));
-
     bpf_probe_read_user_str(event.filename, sizeof(event.filename), args->filename);
 
     events.perf_submit(args, &event, sizeof(event));
