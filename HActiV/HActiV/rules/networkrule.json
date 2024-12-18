@@ -2,7 +2,7 @@
   {
     "event_name": "print all network event",
     "description": "모든 network 이벤트 출력",
-    "usage": true,
+    "usage": false,
     "condition": "%PacketSize% \u003e= 0",
     "action": "print",
     "print_format": "5️⃣ %Time% | %ContainerName% | SrcIp: %SrcIp% | SrcIpLabel: %SrcIpLabel% | DstIp: %DstIp% | DstIpLabel: %DstIpLabel% | Protocol: %Protocol% | Direction: %Direction% | PacketSize: %PacketSize% | SrcPort: %SrcPort% | DstPort: %DstPort%",
@@ -11,7 +11,7 @@
   {
     "event_name": "Access to restricted IP",
     "description": "특정 SrcIP 접근 탐지",
-    "usage": false,
+    "usage": true,
     "condition": "%SrcIp% == 8.8.8.8",
     "action": "print",
     "print_format": "[⚠️ warn]5️⃣ %Time% | %ContainerName% | 특정 SrcIP 접근 감지: %SrcIp% -\u003e %DstIp% | Protocol: %Protocol% ",
@@ -20,7 +20,7 @@
   {
     "event_name": "Access to restricted IP",
     "description": "특정 DstIp 접근 탐지",
-    "usage": false,
+    "usage": true,
     "condition": "%DstIp% == 172.17.0.1",
     "action": "print",
     "print_format": "[⚠️ warn]5️⃣ %Time% | %ContainerName% | 특정 DstIp로 접근 감지: %SrcIp% -\u003e %DstIp% | Protocol: %Protocol% ",
@@ -29,7 +29,7 @@
   {
     "event_name": "Large packet tranmission",
     "description": "특정 임계값 이상의 네트워크 패킷 전송 탐지 (10MB 이상)",
-    "usage": false,
+    "usage": true,
     "condition": "%PacketSize% \u003e= 10485760",
     "action": "print",
     "print_format": "[⚠️ warn]5️⃣ %Time% | %ContainerName% | 대규모 패킷 전송(10MB 이상): %SrcIp% -\u003e %DstIp% | Protocol: %Protocol% | PacketSize: %PacketSize%byte",
@@ -38,7 +38,7 @@
   {
     "event_name": "print all TCP network event",
     "description": "프로토콜이 TCP인 모든 네트워크 이벤트 출력",
-    "usage": false,
+    "usage": true,
     "condition": "%Protocol% == TCP",
     "action": "print",
     "print_format": "[🛠️ alert]5️⃣ %Time% | %ContainerName% | TCP 프로토콜 탐지: SrcIp: %SrcIp% (%SrcIpLabel%) -\u003e DstIp: %DstIp% (%DstIpLabel%) | Protocol: %Protocol% | Direction: %Direction% | PacketSize: %PacketSize% bytes | SrcPort: %SrcPort% | DstPort: %DstPort%",
