@@ -4,6 +4,8 @@ services:
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
+    networks:
+      - hactiv-network
 
   kafka:
     image: wurstmeister/kafka
@@ -14,6 +16,8 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     depends_on:
       - zookeeper
+    networks:
+      - hactiv-network
 
   mysql:
     image: mysql:8.0
@@ -26,6 +30,8 @@ services:
       MYSQL_PASSWORD: Gorxlqmdbwj11!@#
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - hactiv-network
 
   hactiv-web-backend:
     build:
@@ -44,6 +50,8 @@ services:
       - DB_PASS=Gorxlqmdbwj11!@#
       - DB_NAME=hactiv_dashboard
     command: ["/bin/sh", "-c", "/wait-for-it.sh kafka 9092 && /wait-for-it.sh mysql 3306 && ./main"]
+    networks:
+      - hactiv-network
 
   hactiv-web-frontend:
     build:
@@ -55,9 +63,13 @@ services:
       - hactiv-web-backend
     environment:
       - REACT_APP_API_URL=http://hactiv-web-backend:8080
+    networks:
+      - hactiv-network
 
   hactiv:
-    image: hactiv-image
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: HActiV
     privileged: true
     volumes:
@@ -67,8 +79,25 @@ services:
       - hactiv-web-backend
     environment:
       - BACKEND_URL=http://hactiv-web-backend:8080
+      - API_KEY=your-secret-api-key
+      - HOST_MONITORING=true
+      - LOG_LOCATION=/etc/HActiV/logs
+      - REGION=Asia/Seoul
+      - RULE_LOCATION=/etc/HActiV/rules
+      - DATA_SEND=true
     command: sleep infinity
+    networks:
+      - hactiv-network
+
+  hactiv-build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hactiv-image
 
 volumes:
   mysql_data:
 
+networks:
+  hactiv-network:
+    driver: bridge
