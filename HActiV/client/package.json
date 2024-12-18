@@ -129,7 +129,6 @@
   "overrides": {
     "svgo": "3.0.2"
   },
-  "proxy": "https://hactiv-dev.run.goorm.site",
   "jest": {
     "roots": [
       "<rootDir>/src"
