@@ -1,17 +1,15 @@
 import React, { Suspense, lazy, useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { Grid, Skeleton, Select, MenuItem, FormControl, InputLabel, IconButton, Modal, Typography, Box, TextField, Button, useMediaQuery, Card, List, ListItem, ListItemText } from "@mui/material";
-import { Refresh, Block, Settings, Build, Delete, SaveAlt, Download } from "@mui/icons-material";
+import { Grid, Skeleton, Select, MenuItem, FormControl, InputLabel, IconButton, Typography, Box, TextField, Button, useMediaQuery, Card, List, ListItem, ListItemText, LinearProgress } from "@mui/material";
+import { Refresh, Block, Settings, Build, Delete, SaveAlt } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import MDBox from "components/MDBox";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
-import DataTable from "examples/Tables/DataTable";
 import GaugeChart from "./components/GaugeChart";
 
 const ReportsLineChart = lazy(() => import("examples/Charts/LineCharts/ReportsLineChart"));
-const ReportsBarChart = lazy(() => import("examples/Charts/BarCharts/ReportsBarChart"));
 
 const GAUGE_COLORS = {
   cpu: "#FF6384",
@@ -21,7 +19,7 @@ const GAUGE_COLORS = {
   network_tx: "#9966FF"
 };
 
-function LazyLoadedChart({ Component, chartRef, toolName, chartId, lastUpdated, ...props }) {
+function LazyLoadedChart({ Component, chartRef, toolName, chartId, lastUpdated, width, ...props }) {
   const navigate = useNavigate();
 
   const handleChartClick = () => {
@@ -29,8 +27,8 @@ function LazyLoadedChart({ Component, chartRef, toolName, chartId, lastUpdated, 
   };
 
   return (
-    <Suspense fallback={<Skeleton variant="rectangular" width="100%" height={300} />}>
-      <div onClick={handleChartClick} style={{ cursor: "pointer", height: "300px" }}>
+    <Suspense fallback={<Skeleton variant="rectangular" width={width} height={300} />}>
+      <div onClick={handleChartClick} style={{ cursor: "pointer", height: "100%", width: width }}>
         <Component ref={chartRef} date={lastUpdated} {...props} />
       </div>
     </Suspense>
@@ -47,14 +45,15 @@ export default function Dashboard() {
   const [filterPeriod, setFilterPeriod] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
   const [lastUpdated, setLastUpdated] = useState({});
   const [hostMetrics, setHostMetrics] = useState({ cpu_cores: 0, cpu_usage: 0, memory_usage: 0, disk_usage: 0 });
   const [containerMetrics, setContainerMetrics] = useState({});
   const [inactiveContainers, setInactiveContainers] = useState({});
   const [lastUpdate, setLastUpdate] = useState({});
   const [prevEventTimes, setPrevEventTimes] = useState({});
+  const [historicalData, setHistoricalData] = useState([]);
+  const [isLoadingHistorical, setIsLoadingHistorical] = useState(false);
+  const [viewMode, setViewMode] = useState('realtime');
 
   const chartRef = useRef(null);
   const location = useLocation();
@@ -64,37 +63,32 @@ export default function Dashboard() {
 
   const toolTypes = useMemo(() => [
     "Systemcall",
-    "file_open",
-    "delete",
     "Network_traffic",
     "Memory",
-    "log_file_access"
+    "file_open",
+    "delete",
+    "log_file_open",
+    "log_file_delete"
   ], []);
-
-  const columns = [
-    { Header: "Event Type", accessor: "event_type", width: "20%" },
-    { Header: "Time", accessor: "timestamp", width: "20%" },
-    { Header: "Container", accessor: "container_name", width: "15%" },
-    { Header: "Command", accessor: "command", width: "25%" },
-    { Header: "Arguments", accessor: "arguments", width: "20%" },
-  ];
 
   const backgroundColors = {
     Systemcall: "rgba(75, 192, 192, 0.2)",
+    "Network_traffic": "rgb(168, 74, 32, 0.2)",
+    Memory: "rgba(54, 162, 235, 0.2)",
     file_open: "rgba(153, 102, 255, 0.2)",
     delete: "rgba(128, 0, 128, 0.2)",  
-    Network_traffic: "rgb(168, 74, 32, 0.2)",
-    Memory: "rgba(54, 162, 235, 0.2)",
-    log_file_access: "rgba(255, 205, 86, 0.2)"
+    log_file_open: "rgba(255, 205, 86, 0.2)",
+    log_file_delete: "rgba(255, 99, 132, 0.2)"
   };
 
   const colorThemes = {
     Systemcall: "primary",
-    file_open: "error",
-    delete: "secondary",  
-    Network_traffic: "warning",
+    "Network_traffic": "warning",
     Memory: "success",
-    log_file_access: "info"
+    file_open: "info",
+    delete: "secondary",  
+    log_file_open: "info",
+    log_file_delete: "error"
   };
 
   const borderColor = {
@@ -103,7 +97,8 @@ export default function Dashboard() {
     delete: "#ffffff",
     Network_traffic: "#ffffff",
     Memory: "#ffffff",
-    log_file_access: "#ffffff"
+    log_file_open: "#ffffff",
+    log_file_delete: "#ffffff"
   };
 
   const fetchData = useCallback(async () => {
@@ -130,7 +125,12 @@ export default function Dashboard() {
       
       const mostRecentTimestamp = new Date(Math.max(...data.map(event => new Date(event.timestamp).getTime())));
       const thirtyMinutesAgo = new Date(mostRecentTimestamp.getTime() - 30 * 60 * 1000);
-      data = data.filter(event => new Date(event.timestamp) >= thirtyMinutesAgo);
+      data = data.filter(event => 
+        event.event_type !== 'HostMetrics' && 
+        event.event_type !== 'ContainerMetrics' &&
+        event.event_type !== 'InactiveContainers' &&
+        new Date(event.timestamp) >= thirtyMinutesAgo
+      );
 
       setDashboardData(data);
       setIsLoading(false);
@@ -201,7 +201,7 @@ export default function Dashboard() {
   useEffect(() => {
     fetchData();
     
-    wsRef.current = new WebSocket('ws://localhost:8080/ws');
+    wsRef.current = new WebSocket('ws://hactiv-web-backend:8080/ws');
     
     wsRef.current.onopen = () => {
       console.log('WebSocket Connected');
@@ -328,11 +328,6 @@ export default function Dashboard() {
     navigate(`?tool=${tool}`);
   };
   const handleContainerChange = (event) => setSelectedContainer(event.target.value);
-  const handleOpenModal = (event) => {
-    setSelectedEvent(event);
-    setModalOpen(true);
-  };
-  const handleCloseModal = () => setModalOpen(false);
   const handlePeriodChange = (event) => {
     setFilterPeriod(event.target.value);
     setFilterDate("");
@@ -344,14 +339,32 @@ export default function Dashboard() {
     setEndDate("");
   };
   const handleStartDateChange = (event) => {
-    setStartDate(event.target.value);
-    setFilterDate("");
-    setFilterPeriod("");
+    const newStartDate = new Date(event.target.value);
+    setStartDate(newStartDate);
+    if (endDate) {
+      fetchHistoricalData(newStartDate, endDate);
+    }
   };
   const handleEndDateChange = (event) => {
-    setEndDate(event.target.value);
-    setFilterDate("");
-    setFilterPeriod("");
+    const newEndDate = new Date(event.target.value);
+    setEndDate(newEndDate);
+    if (startDate) {
+      fetchHistoricalData(startDate, newEndDate);
+    }
+  };
+
+  const fetchHistoricalData = async (startDate, endDate) => {
+    setIsLoadingHistorical(true);
+    try {
+      const response = await fetch(`/api/dashboard?event_type=${selectedTool}&start_time=${startDate.toISOString()}&end_time=${endDate.toISOString()}`);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      setHistoricalData(data);
+    } catch (err) {
+      console.error("Error fetching historical data:", err);
+    } finally {
+      setIsLoadingHistorical(false);
+    }
   };
 
   const checkContainerActivity = useCallback((metrics) => {
@@ -463,18 +476,19 @@ export default function Dashboard() {
     return data;
   }, [dashboardData, selectedTool, startDate, endDate, filterDate, filterPeriod, lastUpdate]);
 
-  const { eventCounts, containerCounts, timelineData, rows, toolTimelineData } = useMemo(() => {
+  const chartData = useMemo(() => {
+    const data = [...dashboardData, ...historicalData];
     const eventCounts = {};
     const containerCounts = {};
     const timelineData = {};
     const toolTimelineData = {};
-    const rows = [];
+    const allEventsTimelineData = {};
 
     toolTypes.forEach((tool) => {
       toolTimelineData[tool] = {};
     });
 
-    filteredData.forEach((item) => {
+    data.forEach((item) => {
       if (item.event_type !== 'HostMetrics' && item.event_type !== 'ContainerMetrics' && item.event_type !== 'InactiveContainers') {
         eventCounts[item.event_type] = (eventCounts[item.event_type] || 0) + 1;
         containerCounts[item.container_name] = (containerCounts[item.container_name] || 0) + 1;
@@ -484,58 +498,27 @@ export default function Dashboard() {
 
         timelineData[date.getHours()] = (timelineData[date.getHours()] || 0) + 1;
 
+        // All Events Timeline data
+        allEventsTimelineData[timeKey] = (allEventsTimelineData[timeKey] || 0) + 1;
+
         if (item.event_type && toolTimelineData[item.event_type]) {
           toolTimelineData[item.event_type][timeKey] = (toolTimelineData[item.event_type][timeKey] || 0) + 1;
         }
-
-        rows.push({
-          event_type: item.event_type,
-          timestamp: date.toLocaleString(),
-          container_name: item.container_name,
-          command: item.command,
-          arguments: item.arguments,
-          onClick: () => handleOpenModal(item),
-        });
       }
     });
 
-    return { eventCounts, containerCounts, timelineData, rows, toolTimelineData };
-  }, [filteredData, toolTypes]);
+    return { eventCounts, containerCounts, timelineData, toolTimelineData, allEventsTimelineData };
+  }, [dashboardData, historicalData, toolTypes]);
 
-  const containerBarChartData = useMemo(
-    () => ({
-      labels: Object.keys(containerCounts),
-      datasets: { label: "Count", data: Object.values(containerCounts) },
-    }),
-    [containerCounts]
-  );
-
-  const eventBarChartData = useMemo(
-    () => ({
-      labels: Object.keys(eventCounts),
-      datasets: { label: "Count", data: Object.values(eventCounts) },
-    }),
-    [eventCounts]
-  );
-
-  const timeBarChartData = useMemo(
-    () => ({
-      labels: Object.keys(timelineData).map((hour) => `${hour}:00`),
-      datasets: { label: "Count", data: Object.values(timelineData) },
-    }),
-    [timelineData]
-  );
-
-  if (isLoading) {
+  if (isLoading || isLoadingHistorical) {
     return (
       <DashboardLayout>
         <MDBox display="flex" justifyContent="center" alignItems="center" height="100vh">
-          <Skeleton variant="rectangular" width="80%" height={400} />
+          <LinearProgress />
         </MDBox>
       </DashboardLayout>
     );
   }
-
 
   return (
     <DashboardLayout>
@@ -670,6 +653,12 @@ export default function Dashboard() {
                       Last updated: {metrics.lastUpdated}
                     </Typography>
                   </Typography>
+                  <IconButton onClick={() => handleSaveContainerData(containerName)} title="Save container data">
+                    <SaveAlt />
+                  </IconButton>
+                  <IconButton onClick={() => handleDeleteContainer(containerName)} title="Delete container" color="error">
+                    <Delete />
+                  </IconButton>
                 </Box>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6} md={2.4}>
@@ -700,7 +689,7 @@ export default function Dashboard() {
               {Object.entries(inactiveContainers).map(([containerName, data]) => (
                 <ListItem key={containerName}>
                   <ListItemText 
-                    primary={containerName} 
+                    primary={containerName}
                     secondary={`Last updated: ${data.lastUpdated}`} 
                   />
                   <IconButton onClick={() => handleSaveContainerData(containerName)} title="Save container data">
@@ -715,106 +704,99 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-        {selectedTool === "all"
-          ? toolTypes.map((tool, index) => (
-            <Grid item xs={12} md={4} key={tool} sx={{ height: "300px", mb: 4 }}>
-              <LazyLoadedChart
-                Component={ReportsLineChart}
-                chartRef={chartRef}
-                toolName={tool}
-                chartId={index}
-                color={colorThemes[tool]}
-                title={`${tool} Event Timeline`}
-                chart={{
-                  labels: Object.keys(toolTimelineData[tool] || {}).sort(),
-                  datasets: {
-                    label: `${tool} Events`,
-                    data: Object.values(toolTimelineData[tool] || {}),
-                    backgroundColor: backgroundColors[tool],
-                    borderColor: borderColor[tool],
-                  },
-                }}
-                lastUpdated={lastUpdated[tool] || ''}
-              />
+        {viewMode === 'realtime' ? (
+          <>
+            {/* First row */}
+            <Grid container spacing={2} sx={{ paddingLeft: '32px', paddingTop: '16px', paddingBottom: '16px' }}>
+              {['all', 'Systemcall', 'Network_traffic', 'Memory'].map((tool, index) => (
+                <Grid item xs={12} md={3} key={tool} sx={{ 
+                  paddingLeft: index === 0 ? 0 : '8px',
+                  paddingRight: index === 3 ? 0 : '8px'
+                }}>
+                  <Box sx={{ height: '300px', marginBottom: 0, width: '100%' }}>
+                    <LazyLoadedChart
+                      Component={ReportsLineChart}
+                      chartRef={chartRef}
+                      toolName={tool === 'all' ? 'All Events' : tool}
+                      chartId={index}
+                      color={tool === 'all' ? 'primary' : colorThemes[tool]}
+                      title={`${tool === 'all' ? 'All Events' : tool} Timeline`}
+                      chart={{
+                        labels: Object.keys(tool === 'all' ? chartData.allEventsTimelineData : (chartData.toolTimelineData[tool] || {})).sort(),
+                        datasets: {
+                          label: `${tool === 'all' ? 'All Events' : tool} Events`,
+                          data: Object.values(tool === 'all' ? chartData.allEventsTimelineData : (chartData.toolTimelineData[tool] || {})),
+                          backgroundColor: tool === 'all' ? "rgba(75, 192, 192, 0.2)" : backgroundColors[tool],
+                          borderColor: tool === 'all' ? "#ffffff" : borderColor[tool],
+                        },
+                      }}
+                      lastUpdated={lastUpdated[tool] || ''}
+                      width="100%"
+                    />
+                  </Box>
+                </Grid>
+              ))}
             </Grid>
-          ))
-          : (
-            <Grid item xs={12} sx={{ height: "300px", mb: 4 }}>
+
+            {/* Second row */}
+            <Grid container spacing={2} sx={{ paddingLeft: '32px', paddingTop: '16px', paddingBottom: '16px' }}>
+              {['file_open', 'delete', 'log_file_open', 'log_file_delete'].map((tool, index) => (
+                <Grid item xs={12} md={3} key={tool} sx={{ 
+                  paddingLeft: index === 0 ? 0 : '8px',
+                  paddingRight: index === 3 ? 0 : '8px'
+                }}>
+                  <Box sx={{ height: '300px', marginBottom: 0, width: '100%' }}>
+                    <LazyLoadedChart
+                      Component={ReportsLineChart}
+                      chartRef={chartRef}
+                      toolName={tool}
+                      chartId={index + 4}
+                      color={colorThemes[tool]}
+                      title={`${tool} Timeline`}
+                      chart={{
+                        labels: Object.keys(chartData.toolTimelineData[tool] || {}).sort(),
+                        datasets: {
+                          label: `${tool} Events`,
+                          data: Object.values(chartData.toolTimelineData[tool] || {}),
+                          backgroundColor: backgroundColors[tool],
+                          borderColor: borderColor[tool],
+                        },
+                      }}
+                      lastUpdated={lastUpdated[tool] || ''}
+                      width="100%"
+                    />
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </>
+        ) : (
+          // Historical view remains unchanged
+          <Grid item xs={12} sx={{ padding: 2 }}>
+            <Box sx={{ height: '300px', marginBottom: 0 }}>
               <LazyLoadedChart
                 Component={ReportsLineChart}
                 chartRef={chartRef}
                 toolName={selectedTool}
                 chartId={1}
                 color={colorThemes[selectedTool]}
-                title={`${selectedTool} Event Timeline`}
+                title={`${selectedTool} Event Timeline (Filtered)`}
                 chart={{
-                  labels: Object.keys(toolTimelineData[selectedTool] || {}).sort(),
+                  labels: filteredData.map(item => new Date(item.timestamp).toLocaleTimeString()),
                   datasets: {
                     label: `${selectedTool} Events`,
-                    data: Object.values(toolTimelineData[selectedTool] || {}),
+                    data: filteredData.map(item => 1),
                     backgroundColor: backgroundColors[selectedTool],
                     borderColor: borderColor[selectedTool],
                   },
                 }}
                 lastUpdated={lastUpdated[selectedTool] || ''}
+                width="100%"
               />
-            </Grid>
-          )
-        }
-
-        <Grid item xs={12} md={4} sx={{ height: "300px", mb: 4 }}>
-          <LazyLoadedChart
-            Component={ReportsBarChart}
-            chartRef={chartRef}
-            title="Count of Events per Container"
-            chart={containerBarChartData}
-            lastUpdated={lastUpdated['all'] || ''}
-          />
-        </Grid>
-        <Grid item xs={12} md={4} sx={{ height: "300px", mb: 4 }}>
-          <LazyLoadedChart
-            Component={ReportsBarChart}
-            chartRef={chartRef}
-            title="Count of Events per Event Type"
-            chart={eventBarChartData}
-            lastUpdated={lastUpdated['all'] || ''}
-          />
-        </Grid>
-        <Grid item xs={12} md={4} sx={{ height: "300px", mb: 4 }}>
-          <LazyLoadedChart
-            Component={ReportsBarChart}
-            chartRef={chartRef}
-            title="Count of Events per Hour"
-            chart={timeBarChartData}
-            lastUpdated={lastUpdated['all'] || ''}
-          />
-        </Grid>
-      </Grid>
-
-      <MDBox mt={3}>
-        <DataTable table={{ columns, rows }} isSorted={false} entriesPerPage={false} showTotalEntries={false} />
-      </MDBox>
-
-      <Modal open={modalOpen} onClose={handleCloseModal}>
-        <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 400, bgcolor: "background.paper", boxShadow: 24, p: 4 }}>
-          <Typography variant="h6">Event Details</Typography>
-          {selectedEvent && (
-            <Box mt={2}>
-              {selectedEvent.event_type !== 'HostMetrics' && selectedEvent.event_type !== 'ContainerMetrics' && selectedEvent.event_type !== 'InactiveContainers'? (
-                <>
-                  <Typography>Type: {selectedEvent.event_type}</Typography>
-                  <Typography>Time: {selectedEvent.timestamp}</Typography>
-                  <Typography>Container: {selectedEvent.container_name}</Typography>
-                  <Typography>Command: {selectedEvent.command}</Typography>
-                  <Typography>Arguments: {selectedEvent.arguments}</Typography>
-                </>
-              ) : (
-                <Typography>Detailed information for {selectedEvent.event_type} is not displayed in this view.</Typography>
-              )}
             </Box>
-          )}
-        </Box>
-      </Modal>
+          </Grid>
+        )}
+      </Grid>
 
       <Footer />
     </DashboardLayout>
