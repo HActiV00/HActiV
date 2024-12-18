@@ -1,10 +1,10 @@
 {
-  "API": "your-secret-api-key",
-  "HostMonitoring": "true",
-  "LogLocation": "/etc/HActiV/logs",
-  "Region": "Asia/Seoul",
-  "RuleLocation": "/etc/HActiV/rules",
-  "DataUrl": "http://localhost:8080/api/dashboard",
-  "DataSend": "True",
-  "RuleUrl": "http://localhost:8080/api/alert"
+  "API": "${API_KEY}",
+  "HostMonitoring": "${HOST_MONITORING}",
+  "LogLocation": "${LOG_LOCATION}",
+  "Region": "${REGION}",
+  "RuleLocation": "${RULE_LOCATION}",
+  "DataUrl": "${BACKEND_URL}/api/dashboard",
+  "DataSend": "${DATA_SEND}",
+  "RuleUrl": "${BACKEND_URL}/api/alert"
 }
