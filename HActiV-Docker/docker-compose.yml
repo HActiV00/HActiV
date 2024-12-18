@@ -89,12 +89,6 @@ services:
     networks:
       - hactiv-network
 
-  hactiv-build:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: hactiv-image
-
 volumes:
   mysql_data:
 
