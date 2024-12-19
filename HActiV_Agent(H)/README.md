@@ -82,7 +82,7 @@
   8. HActiV Setting.js 설정
   
   ```bash
-  # HActiV 웹 url 사용 (/etc/HActiV/Setting.json)
+  # HActiV 웹 url 사용 - Default (/etc/HActiV/Setting.json)
   
   {
     "API": "your-secret-api-key",
