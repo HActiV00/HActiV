@@ -5,7 +5,7 @@
     "usage": true,
     "condition": "%ProcessName% == bash and %Filename% == /usr/bin/gcc and %Args% () -fno-stack-protector and %Args% () execstack",
     "action": "print",
-    "print_format": "[⚠️ warn]② %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%| PPid: %Ppid% | ProcessName: %ProcessName% | Filename: %Filename% | Args: %Args%",
+    "print_format": "[⚠️ Warn]② %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%| PPid: %Ppid% | ProcessName: %ProcessName% | Filename: %Filename% | Args: %Args%",
     "time_conditions": null
   }
 ]
