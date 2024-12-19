@@ -18,7 +18,7 @@
   {
     "event_name": "print_all_execve_event",
     "description": "모든 execve 이벤트 출력",
-    "usage": true,
+    "usage": false,
     "condition": "%Uid% >= 0",
     "action": "print",
     "print_format": "2️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | PPid: %Ppid% | ProcessName: %ProcessName% | Filename: %Filename% | Args: %Args%",
