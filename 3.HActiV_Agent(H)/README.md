@@ -1,11 +1,11 @@
-## [HActiV-Agent(호스트 에이전트 버전)_(ubuntu 20.04/22.04/24.04)]
+<h2> [3.HActiV-Agent(호스트 에이전트 버전)_(ubuntu 20.04/22.04/24.04)] </h2>
 
   1. 도구 설치
 
   ```bash
   glt clone https://github.com/HActiV00/HActiV.git
-  mv -f HActiV-Agent(H)/* HActiV-Tool/
-  cd HActiV-Tool
+  mv -f 3.HActiV-Agent(H)/* 1.HActiV-Tool/
+  cd 1.HActiV-Tool
   ```
 
   2. 필수 빌드 도구 및 라이브러리 업데이트
