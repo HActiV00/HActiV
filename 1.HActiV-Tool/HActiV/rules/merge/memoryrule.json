@@ -30,7 +30,7 @@
     "usage": true,
     "condition": "%Size% \u003e= 1048576",
     "action": "print alert",
-    "print_format": "[⚠️ warn]④ %Time% | %ContainerName% | 1MB 이상 메모리 할당: %ProcessName%, Size(byte): %Size%byte | Syscall: %Syscall%",
+    "print_format": "[⚠️ Warn]④ %Time% | %ContainerName% | 1MB 이상 메모리 할당: %ProcessName%, Size(byte): %Size%byte | Syscall: %Syscall%",
     "time_conditions": null
   },
   {
@@ -39,7 +39,7 @@
     "usage": true,
     "condition": "%Prot% () x",
     "action": "print alert",
-    "print_format": "[⚠️ warn]④ %Time% | %ContainerName% | 실행 가능 메모리 매핑: %ProcessName% (Start: %StartAddr%, End: %EndAddr%)",
+    "print_format": "[⚠️ Warn]④ %Time% | %ContainerName% | 실행 가능 메모리 매핑: %ProcessName% (Start: %StartAddr%, End: %EndAddr%)",
     "time_conditions": null
   },
   {
@@ -48,7 +48,7 @@
     "usage": true,
     "condition": "%Prot% () wx",
     "action": "print alert",
-    "print_format": "[⚠️ warn]④ %Time% | %ContainerName% | 실행 가능한 메모리 쓰기 탐지: %ProcessName% | StartAddr: %StartAddr%, EndAddr: %EndAddr%",
+    "print_format": "[⚠️ Warn]④ %Time% | %ContainerName% | 실행 가능한 메모리 쓰기 탐지: %ProcessName% | StartAddr: %StartAddr%, EndAddr: %EndAddr%",
     "time_conditions": null
   },
   {
@@ -57,7 +57,7 @@
     "usage": true,
     "condition": "%MappingType% () Heap",
     "action": "print alert",
-    "print_format": "[⚠️ warn]④ %Time% | %ContainerName% | 힙 메모리 매핑: %ProcessName% | Syscall: %Syscall% | 크기: %Size% 바이트",
+    "print_format": "[⚠️ Warn]④ %Time% | %ContainerName% | 힙 메모리 매핑: %ProcessName% | Syscall: %Syscall% | 크기: %Size% 바이트",
     "time_conditions": null
   },
   {
@@ -66,7 +66,7 @@
     "usage": true,
     "condition": "%MappingType% () Code",
     "action": "print alert",
-    "print_format": "[⚠️ warn]④ %Time% | %ContainerName% | 코드 메모리 매핑: %ProcessName% | 시작 주소: %StartAddr% | 종료 주소: %EndAddr%",
+    "print_format": "[⚠️ Warn]④ %Time% | %ContainerName% | 코드 메모리 매핑: %ProcessName% | 시작 주소: %StartAddr% | 종료 주소: %EndAddr%",
     "time_conditions": null
   },
   {
@@ -93,7 +93,7 @@
     "usage": true,
     "condition": "%MappingType% () Stack and %Size% > 1048576",
     "action": "print alert",
-    "print_format": "[⚠️ warn]④ %Time% | %ContainerName% | 스택 메모리 확장: %ProcessName% | 크기: %Size% 바이트",
+    "print_format": "[⚠️ Warn]④ %Time% | %ContainerName% | 스택 메모리 확장: %ProcessName% | 크기: %Size% 바이트",
     "time_conditions": null
   },
   {
@@ -102,7 +102,7 @@
     "usage": true,
     "condition": "%MappingType% () Library",
     "action": "print alert",
-    "print_format": "[⚠️ warn]④ %Time% | %ContainerName% | 동적 라이브러리 로드: %ProcessName% | Library: %StartAddr% - %EndAddr%",
+    "print_format": "[⚠️ Warn]④ %Time% | %ContainerName% | 동적 라이브러리 로드: %ProcessName% | Library: %StartAddr% - %EndAddr%",
     "time_conditions": null
   },
   {
@@ -111,7 +111,7 @@
     "usage": true,
     "condition": "%Syscall% == mprotect and %Prot% == rwx and %Size% \u003e= 1048576",
     "action": "print alert ignore",
-    "print_format": "[⚠️ warn]④ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%  | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
+    "print_format": "[⚠️ Warn]④ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%  | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
     "time_conditions": null
   },
   {
@@ -120,7 +120,7 @@
     "usage": true,
     "condition": "%ProcessName% == python3",
     "action": "print alert ignore",
-    "print_format": "[⚠️ warn]④ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%  | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
+    "print_format": "[⚠️ Warn]④ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%  | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
     "time_conditions": null
   }
 ]
