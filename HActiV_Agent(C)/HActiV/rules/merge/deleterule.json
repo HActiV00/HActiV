@@ -1,0 +1,128 @@
+[
+  {
+    "event_name": "print all delete event",
+    "description": "모든 delete 이벤트 출력",
+    "usage": true,
+    "condition": "%Uid% >= 0",
+    "action": "print",
+    "print_format": "3️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | PPid: %PPid% | ProcessName: %ProcessName% | Filename: %Filename%",
+    "time_conditions": null
+  },
+  {
+    "event_name": "passwd file deletion",
+    "description": "시스템의 중요한 파일 삭제 시 경고1(passwd)",
+    "usage": true,
+    "condition": "%Filename% () passwd",
+    "action": "print ignore",
+    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "time_conditions": null
+  },
+  {
+    "event_name": "passwd file deletion2",
+    "description": "시스템의 중요한 파일 삭제 시 경고1-2(passwd)",
+    "usage": true,
+    "condition": "%Filename% () /etc/passwd",
+    "action": "print",
+    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "time_conditions": null
+  },
+  {
+    "event_name": "shadow file deletion",
+    "description": "시스템의 중요한 파일 삭제 시 경고2(shadow)",
+    "usage": true,
+    "condition": "%Filename% () shadow",
+    "action": "print",
+    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "time_conditions": null
+  },
+  {
+    "event_name": "shadow file deletion2",
+    "description": "시스템의 중요한 파일 삭제 시 경고2-2(shadow)",
+    "usage": true,
+    "condition": "%Filename% () /etc/shadow",
+    "action": "print ignore",
+    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Critical file deletion",
+    "description": "시스템의 중요한 파일 삭제 시 경고3(hosts)",
+    "usage": true,
+    "condition": "%Filename% () hosts",
+    "action": "print",
+    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Log file tampering",
+    "description": "로그 파일 삭제 시도 감지1(log)",
+    "usage": true,
+    "condition": "%Filename% () /var/log/",
+    "action": "print ignore",
+    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 로그 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Log file tampering",
+    "description": "로그 파일 삭제 시도 감지1-2(log)",
+    "usage": true,
+    "condition": "%Filename% () .log",
+    "action": "print",
+    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 로그 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "time_conditions": null
+  },
+	{
+	  "event_name": "Docker file deletion",
+	  "description": "Docker 관련 파일 삭제 탐지",
+	  "usage": true,
+	  "condition": "%Filename% () /var/lib/docker",
+	  "action": "print",
+	  "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | Docker 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+	  "time_conditions": null
+	},
+	{
+	  "event_name": "Hosts file deletion",
+	  "description": "네트워크 호스트 매핑 파일 삭제 탐지",
+	  "usage": true,
+	  "condition": "%Filename% () /etc/hosts",
+	  "action": "print",
+	  "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | hosts 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+	  "time_conditions": null
+	},
+	{
+	  "event_name": "Root SSH key deletion",
+	  "description": "루트 사용자의 SSH 키 삭제 탐지",
+	  "usage": true,
+	  "condition": "%Filename% () /root/.ssh/",
+	  "action": "print ignore",
+	  "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | SSH 키 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+	  "time_conditions": null
+	},
+	{
+	  "event_name": "Root SSH key deletion",
+	  "description": "루트 사용자의 SSH 키 삭제 탐지",
+	  "usage": true,
+	  "condition": "%Filename% () authorized_keys",
+	  "action": "print",
+	  "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | SSH 키 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+	  "time_conditions": null
+	},
+	{
+	  "event_name": "DNS configuration deletion",
+	  "description": "DNS 설정 파일 삭제 탐지",
+	  "usage": true,
+	  "condition": "%Filename% () /etc/resolv.conf",
+	  "action": "print ignore",
+	  "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | DNS 설정 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+	  "time_conditions": null
+	},
+	{
+	  "event_name": "Kernel modules deletion",
+	  "description": "커널 모듈 파일 삭제 탐지",
+	  "usage": true,
+	  "condition": "%Filename% () /lib/modules/",
+	  "action": "print",
+	  "print_format": "[⚠️ warn]3️⃣ %Time% | 호스트 시스템 | 커널 모듈 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+	  "time_conditions": null
+	}
+]
