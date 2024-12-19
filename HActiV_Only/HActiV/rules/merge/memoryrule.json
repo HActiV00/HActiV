@@ -1,0 +1,119 @@
+[
+  {
+    "event_name": "print all memory event",
+    "description": "모든 memory 이벤트 출력",
+    "usage": false,
+    "condition": "%Size% >= 0",
+    "action": "print",
+    "print_format": "4️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
+    "time_conditions": null
+  },
+  {
+    "event_name": "1MB over memory allocation",
+    "description": "임계값 이상의 메모리 할당 탐지 (1MB 이상)",
+    "usage": true,
+    "condition": "%Size% \u003e= 1048576",
+    "action": "print",
+    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 1MB 이상 메모리 할당: %ProcessName%, Size(byte): %Size%byte | Syscall: %Syscall%",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Executable memory mapping",
+    "description": "실행 가능한 메모리 영역이 매핑된 경우 감지",
+    "usage": true,
+    "condition": "%Prot% () x",
+    "action": "print",
+    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 실행 가능 메모리 매핑: %ProcessName% (Start: %StartAddr%, End: %EndAddr%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Writable executable memory detected",
+    "description": "실행 가능한 메모리 영역에 쓰기가 발생하는 경우 탐지",
+    "usage": true,
+    "condition": "%Prot% () wx",
+    "action": "print",
+    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 실행 가능한 메모리 쓰기 탐지: %ProcessName% | StartAddr: %StartAddr%, EndAddr: %EndAddr%",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Heap memory expansion",
+    "description": "힙 메모리 매핑 이벤트 탐지",
+    "usage": true,
+    "condition": "%MappingType% () Heap",
+    "action": "print",
+    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 힙 메모리 매핑: %ProcessName% | Syscall: %Syscall% | 크기: %Size% 바이트",
+    "time_conditions": null
+  },
+	{
+	  "event_name": "Code segment mapping",
+	  "description": "코드 영역 메모리 매핑 이벤트 탐지",
+	  "usage": true,
+	  "condition": "%MappingType% () Code",
+	  "action": "print",
+	  "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 코드 메모리 매핑: %ProcessName% | 시작 주소: %StartAddr% | 종료 주소: %EndAddr%",
+	  "time_conditions": null
+	},
+  {
+    "event_name": "Memory protection anomaly",
+    "description": "메모리 보호 변경 또는 우회 시도 탐지",
+    "usage": true,
+    "condition": "%Syscall% () mprotect and %Prot% () rwx",
+    "action": "print",
+    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 메모리 보호 이상 탐지: %ProcessName% | StartAddr: %StartAddr%, EndAddr: %EndAddr% | 권한: %Prot%",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Code segment expansion",
+    "description": "코드 영역이 비정상적으로 확장되는 이벤트 탐지",
+    "usage": true,
+    "condition": "%MappingType% () Code and %Size% > 2097152",
+    "action": "print",
+    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 코드 영역 확장: %ProcessName% | 크기: %Size% 바이트",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Stack memory expansion",
+    "description": "스택 영역이 비정상적으로 확장되는 이벤트 탐지",
+    "usage": true,
+    "condition": "%MappingType% () Stack and %Size% > 1048576",
+    "action": "print",
+    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 스택 메모리 확장: %ProcessName% | 크기: %Size% 바이트",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Dynamic library mapping",
+    "description": "동적 라이브러리가 로드될 때 탐지",
+    "usage": true,
+    "condition": "%MappingType% () Library",
+    "action": "print",
+    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 동적 라이브러리 로드: %ProcessName% | Library: %StartAddr% - %EndAddr%",
+    "time_conditions": null
+  },
+  {
+    "event_name": "bof detect test1",
+    "description": "bof detect test1",
+    "usage": true,
+    "condition": "%Syscall% == mprotect and %Prot% == rwx and %Size% \u003e= 1048576",
+    "action": "print ignore",
+    "print_format": "[⚠️ warn] test1 -  %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%  | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
+    "time_conditions": null
+  },
+  {
+    "event_name": "bof detect test2",
+    "description": "bof detect test2 - temp",
+    "usage": true,
+    "condition": "%ProcessName% == python3",
+    "action": "print ignore",
+    "print_format": "[⚠️ warn] test1 -  %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%  | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
+    "time_conditions": null
+  },
+  {
+    "event_name": "print all memory event",
+    "description": "모든 memory 이벤트 출력",
+    "usage": true,
+    "condition": "%ProcessName% != HActiV",
+    "action": "print",
+    "print_format": "4️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
+    "time_conditions": null
+  }
+]
