@@ -29,8 +29,8 @@
     "description": "실행 파일 열람 감지(bin)",
     "usage": true,
     "condition": "%Filename% () /usr/bin/",
-    "action": "print ignore",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName% | 실행 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
+    "action": "print alert ignore",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName% | 실행 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
     "time_conditions": null
   },
   {
@@ -38,8 +38,8 @@
     "description": "실행 파일 열람 감지(bin)",
     "usage": true,
     "condition": "%Filename% () /bin",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName% | 실행 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName% | 실행 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
     "time_conditions": null
   },
   {
@@ -47,8 +47,8 @@
     "description": "민감 파일 접근 알람1(passwd)",
     "usage": true,
     "condition": "%Filename% == /etc/passwd",
-    "action": "print ignore",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
+    "action": "print alert ignore",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
     "time_conditions": null
   },
   {
@@ -56,8 +56,8 @@
     "description": "민감 파일 접근 알람1-2(passwd)",
     "usage": true,
     "condition": "%Filename% () passwd",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
     "time_conditions": null
   },
   {
@@ -65,8 +65,8 @@
     "description": "민감 파일 접근 알람2(shadow)",
     "usage": true,
     "condition": "%Filename% == /etc/shadow",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
     "time_conditions": null
   },
   {
@@ -74,8 +74,8 @@
     "description": "민감 파일 접근 알람2-2(shadow)",
     "usage": true,
     "condition": "%Filename% () /shadow",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
     "time_conditions": null
   },
   {
@@ -83,8 +83,8 @@
     "description": "민감 파일 접근 알람(ssh_config)",
     "usage": true,
     "condition": "%Filename% == /etc/ssh/ssh_config",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
     "time_conditions": null
   },
   {
@@ -92,8 +92,8 @@
     "description": "민감 파일 접근 알람(ssh)",
     "usage": true,
     "condition": "%Filename% == /etc/ssh",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
     "time_conditions": null
   },
   {
@@ -101,8 +101,8 @@
     "description": "민감 파일 접근 알람(ssh)",
     "usage": true,
     "condition": "%Filename% () /ssh",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
     "time_conditions": null
   },
   {
@@ -110,8 +110,8 @@
     "description": "민감 파일 접근 알람(sshd_config)",
     "usage": true,
     "condition": "%Filename% == /etc/ssh/sshd_config",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
     "time_conditions": null
   },
   {
@@ -119,8 +119,8 @@
     "description": "민감 파일 접근 알람(auth.log)",
     "usage": true,
     "condition": "%Filename% == /var/log/auth.log",
-    "action": "print ignore",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
+    "action": "print alert ignore",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
     "time_conditions": null
   },
   {
@@ -128,8 +128,8 @@
     "description": "민감 파일 접근 알람(auth.log)",
     "usage": true,
     "condition": "%Filename% () auth.log",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
     "time_conditions": null
   },
   {
@@ -137,8 +137,8 @@
     "description": "민감 파일 접근 알람(log)",
     "usage": true,
     "condition": "%Filename% == /var/log",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
     "time_conditions": null
   },
   {
@@ -146,8 +146,8 @@
     "description": "민감 파일 접근 알람(log)",
     "usage": true,
     "condition": "%Filename% () /log",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName%에서 민감 파일 열람 이벤트 발생, %ProcessName%으로 %Filename% 접근",
     "time_conditions": null
   },
   {
@@ -155,7 +155,7 @@
     "description": "crontab 파일 열람 감지",
     "usage": true,
     "condition": "%Filename% == /etc/crontab",
-    "action": "print",
+    "action": "print alert",
     "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName% | crontab 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
     "time_conditions": null
   },
@@ -164,7 +164,7 @@
     "description": "crontab 파일 열람 감지",
     "usage": true,
     "condition": "%Filename% () /crontab",
-    "action": "print",
+    "action": "print alert",
     "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName% | crontab 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
     "time_conditions": null
   },
@@ -173,7 +173,7 @@
     "description": "rc.local 파일 열람 감지",
     "usage": true,
     "condition": "%Filename% == /etc/rc.local",
-    "action": "print ignore",
+    "action": "print alert ignore",
     "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName% | rc.local 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
     "time_conditions": null
   },
@@ -182,7 +182,7 @@
     "description": "rc.local 파일 열람 감지",
     "usage": true,
     "condition": "%Filename% () rc.local",
-    "action": "print",
+    "action": "print alert",
     "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName% | rc.local 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
     "time_conditions": null
   },
@@ -191,8 +191,8 @@
     "description": "외부 장치 파일 접근 탐지",
     "usage": true,
     "condition": "%Filename% () /media/usb",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName% | 외부 장치 파일 접근 감지: %Filename% | %ProcessName%",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName% | 외부 장치 파일 접근 감지: %Filename% | %ProcessName%",
     "time_conditions": null
   },
   {
@@ -200,8 +200,8 @@
     "description": "암호화된 파일 생성 감지(.enc)",
     "usage": true,
     "condition": "%Filename% () .enc",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName% | 암호화된 파일 생성 감지(.enc): %Filename% | %ProcessName%",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName% | 암호화된 파일 생성 감지(.enc): %Filename% | %ProcessName%",
     "time_conditions": null
   },
   {
@@ -209,8 +209,8 @@
     "description": "암호화된 파일 생성 감지(.crypt)",
     "usage": true,
     "condition": "%Filename% () .crypt",
-    "action": "print",
-    "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName% | 암호화된 파일 생성 감지(.crypt): %Filename% | %ProcessName%",
+    "action": "print alert",
+    "print_format": "[ℹ️ Info]6️⃣ %Time% | %ContainerName% | 암호화된 파일 생성 감지(.crypt): %Filename% | %ProcessName%",
     "time_conditions": null
   },
   {
@@ -218,7 +218,7 @@
     "description": "ASLR 비활성화 탐지",
     "usage": true,
     "condition": "%ProcessName% == bash and %Filename% == /proc/sys/kernel/randomize_va_space",
-    "action": "print",
+    "action": "print alert",
     "print_format": "[⚠️ warn]6️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%| PPid: %Ppid% | ProcessName: %ProcessName% | Filename: %Filename%",
     "time_conditions": null
   }
