@@ -156,7 +156,7 @@
     "usage": true,
     "condition": "%Filename% == /etc/crontab",
     "action": "print alert",
-    "print_format": "[⚠️ warn]⑥ %Time% | %ContainerName% | crontab 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
+    "print_format": "[⚠️ Warn]⑥ %Time% | %ContainerName% | crontab 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
     "time_conditions": null
   },
   {
@@ -165,7 +165,7 @@
     "usage": true,
     "condition": "%Filename% () /crontab",
     "action": "print alert",
-    "print_format": "[⚠️ warn]⑥ %Time% | %ContainerName% | crontab 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
+    "print_format": "[⚠️ Warn]⑥ %Time% | %ContainerName% | crontab 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
     "time_conditions": null
   },
   {
@@ -174,7 +174,7 @@
     "usage": true,
     "condition": "%Filename% == /etc/rc.local",
     "action": "print alert ignore",
-    "print_format": "[⚠️ warn]⑥ %Time% | %ContainerName% | rc.local 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
+    "print_format": "[⚠️ Warn]⑥ %Time% | %ContainerName% | rc.local 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
     "time_conditions": null
   },
   {
@@ -183,7 +183,7 @@
     "usage": true,
     "condition": "%Filename% () rc.local",
     "action": "print alert",
-    "print_format": "[⚠️ warn]⑥ %Time% | %ContainerName% | rc.local 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
+    "print_format": "[⚠️ Warn]⑥ %Time% | %ContainerName% | rc.local 파일 열람 감지: %ProcessName%가 %Filename%에 접근",
     "time_conditions": null
   },
   {
@@ -219,7 +219,7 @@
     "usage": true,
     "condition": "%ProcessName% == bash and %Filename% == /proc/sys/kernel/randomize_va_space",
     "action": "print alert",
-    "print_format": "[⚠️ warn]⑥ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%| PPid: %Ppid% | ProcessName: %ProcessName% | Filename: %Filename%",
+    "print_format": "[⚠️ Warn]⑥ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%| PPid: %Ppid% | ProcessName: %ProcessName% | Filename: %Filename%",
     "time_conditions": null
   }
 ]
