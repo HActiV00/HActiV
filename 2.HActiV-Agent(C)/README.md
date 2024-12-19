@@ -1,8 +1,8 @@
-<h2> [HActiV-Agent(컨테이너 에이전트 버전)] </h2>
+[<h2> 2.HActiV-Agent(컨테이너 에이전트 버전) </h2>](https://github.com/HActiV00/HActiV/tree/main/HActiV_Agent(C))
 
   1. 도구 설치
   ```bash
-  glt clone https://github.com/HActiV00/HActiV.git
+  git clone https://github.com/HActiV00/HActiV.git
   mv -f 2.HActiV-Agent(c)/* /1.HActiV-Tool
   cd 1.HActiV-Tool
   ```
@@ -19,5 +19,5 @@
 
   4. 도구 실행
   ```bash
-  ./HActiV {arg1} {arg2} {arg3} ... {arg4}
+  ./HActiV {arg1} {arg2} {arg3} ... {argN}
   ```
