@@ -29,7 +29,7 @@
     "description": "루트 UID로 실행된 execve 이벤트에 대한 경고",
     "usage": true,
     "condition": "%Uid% == 0",
-    "action": "print alert",
+    "action": "print",
     "print_format": "[🔔 root]2️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | PPid: %Ppid% | Root Exec: %ProcessName% | Filename: %Filename% | Args: %Args%",
     "time_conditions": null
   },
