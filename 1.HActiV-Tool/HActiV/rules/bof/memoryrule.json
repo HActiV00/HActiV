@@ -5,7 +5,7 @@
     "usage": true,
     "condition": "%Syscall% == mprotect and %Prot% == rwx and %Size% \u003e= 1048576",
     "action": "print alert ignore",
-    "print_format": "[⚠️ warn]④ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%  | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
+    "print_format": "[⚠️ Warn]④ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%  | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
     "time_conditions": null
   },
   {
@@ -14,7 +14,7 @@
     "usage": true,
     "condition": "%ProcessName% == python3",
     "action": "print alert ignore",
-    "print_format": "[⚠️ warn]④ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%  | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
+    "print_format": "[⚠️ Warn]④ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%  | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
     "time_conditions": null
   },
   {
