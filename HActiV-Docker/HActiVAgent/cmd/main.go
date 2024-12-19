@@ -23,7 +23,7 @@ func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("------------------------------")
 		fmt.Println("Usage: sudo ./HActiV <function_number(s)>")
-		fmt.Println("Example: ./HActiV 0 1 2 3 4 5 6")
+		fmt.Println("Example: ./HActiV 1 2 3 4 5 6")
 		fmt.Println("[option 1: system metrics monitoring]")
 		fmt.Println("[option 2: execve event monitoring]")
 		fmt.Println("[option 3: delete event monitoring]")
