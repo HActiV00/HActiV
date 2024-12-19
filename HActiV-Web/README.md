@@ -1,4 +1,4 @@
-## [HActiV-Web(Localhost)]
+## [HActiV-Web(호스트 웹 버전)]
 
   1. HActiV-Web 설치
   ```bash
