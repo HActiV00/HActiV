@@ -21,7 +21,7 @@
     "usage": true,
     "condition": "%PacketSize% >= 0",
     "action": "print",
-    "print_format": "5️⃣ %Time% | %ContainerName% | SrcIp: %SrcIp% | SrcIpLabel: %SrcIpLabel% | DstIp: %DstIp% | DstIpLabel: %DstIpLabel% | Protocol: %Protocol% | Direction: %Direction% | PacketSize: %PacketSize% | SrcPort: %SrcPort% | DstPort: %DstPort%",
+    "print_format": "⑤ %Time% | %ContainerName% | SrcIp: %SrcIp% | SrcIpLabel: %SrcIpLabel% | DstIp: %DstIp% | DstIpLabel: %DstIpLabel% | Protocol: %Protocol% | Direction: %Direction% | PacketSize: %PacketSize% | SrcPort: %SrcPort% | DstPort: %DstPort%",
     "time_conditions": null
   },
   {
@@ -30,7 +30,7 @@
     "usage": false,
     "condition": "%Direction% == incoming and %SrcIp% != 172.17.0.2",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %ContainerName% | 허용되지 않은 SrcIP 접근 탐지: %SrcIp% -> %DstIp% | Protocol: %Protocol% | SrcPort: %SrcPort% | DstPort: %DstPort%",
+    "print_format": "[⚠️ warn]⑤ %Time% | %ContainerName% | 허용되지 않은 SrcIP 접근 탐지: %SrcIp% -> %DstIp% | Protocol: %Protocol% | SrcPort: %SrcPort% | DstPort: %DstPort%",
     "time_conditions": null
   },
   {
@@ -39,7 +39,7 @@
     "usage": true,
     "condition": "%SrcIp% == 8.8.8.8",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %ContainerName% | 특정 SrcIP 접근 감지: %SrcIp% -> %DstIp% | Protocol: %Protocol%",
+    "print_format": "[⚠️ warn]⑤ %Time% | %ContainerName% | 특정 SrcIP 접근 감지: %SrcIp% -> %DstIp% | Protocol: %Protocol%",
     "time_conditions": null
   },
   {
@@ -48,7 +48,7 @@
     "usage": true,
     "condition": "%DstIp% == 172.17.0.1",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %ContainerName% | 특정 DstIp로 접근 감지: %SrcIp% -> %DstIp% | Protocol: %Protocol%",
+    "print_format": "[⚠️ warn]⑤ %Time% | %ContainerName% | 특정 DstIp로 접근 감지: %SrcIp% -> %DstIp% | Protocol: %Protocol%",
     "time_conditions": null
   },
   {
@@ -57,7 +57,7 @@
     "usage": true,
     "condition": "%PacketSize% >= 10485760",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %ContainerName% | 대규모 패킷 전송(10MB 이상): %SrcIp% -> %DstIp% | Protocol: %Protocol% | PacketSize: %PacketSize%byte",
+    "print_format": "[⚠️ warn]⑤ %Time% | %ContainerName% | 대규모 패킷 전송(10MB 이상): %SrcIp% -> %DstIp% | Protocol: %Protocol% | PacketSize: %PacketSize%byte",
     "time_conditions": null
   },
   {
@@ -66,7 +66,7 @@
     "usage": false,
     "condition": "%Protocol% == TCP",
     "action": "print",
-    "print_format": "[🛠️ alert]5️⃣ %Time% | %ContainerName% | TCP 프로토콜 탐지: SrcIp: %SrcIp% (%SrcIpLabel%) -> DstIp: %DstIp% (%DstIpLabel%) | Direction: %Direction% | PacketSize: %PacketSize% bytes | SrcPort: %SrcPort% | DstPort: %DstPort%",
+    "print_format": "[🛠️ alert]⑤ %Time% | %ContainerName% | TCP 프로토콜 탐지: SrcIp: %SrcIp% (%SrcIpLabel%) -> DstIp: %DstIp% (%DstIpLabel%) | Direction: %Direction% | PacketSize: %PacketSize% bytes | SrcPort: %SrcPort% | DstPort: %DstPort%",
     "time_conditions": null
   },
   {
@@ -75,7 +75,7 @@
     "usage": false,
     "condition": "%Protocol% == UDP",
     "action": "print",
-    "print_format": "[🛠️ alert]5️⃣ %Time% | %ContainerName% | UDP 프로토콜 탐지: SrcIp: %SrcIp% (%SrcIpLabel%) -> DstIp: %DstIp% (%DstIpLabel%) | Direction: %Direction% | PacketSize: %PacketSize% bytes | SrcPort: %SrcPort% | DstPort: %DstPort%",
+    "print_format": "[🛠️ alert]⑤ %Time% | %ContainerName% | UDP 프로토콜 탐지: SrcIp: %SrcIp% (%SrcIpLabel%) -> DstIp: %DstIp% (%DstIpLabel%) | Direction: %Direction% | PacketSize: %PacketSize% bytes | SrcPort: %SrcPort% | DstPort: %DstPort%",
     "time_conditions": null
   },
   {
@@ -84,7 +84,7 @@
     "usage": false,
     "condition": "%Protocol% == ICMP",
     "action": "print",
-    "print_format": "[🛠️ alert]5️⃣ %Time% | %ContainerName% | ICMP 프로토콜 탐지: SrcIp: %SrcIp% (%SrcIpLabel%) -> DstIp: %DstIp% (%DstIpLabel%) | PacketSize: %PacketSize% bytes | SrcPort: %SrcPort% | DstPort: %DstPort%",
+    "print_format": "[🛠️ alert]⑤ %Time% | %ContainerName% | ICMP 프로토콜 탐지: SrcIp: %SrcIp% (%SrcIpLabel%) -> DstIp: %DstIp% (%DstIpLabel%) | PacketSize: %PacketSize% bytes | SrcPort: %SrcPort% | DstPort: %DstPort%",
     "time_conditions": null
   },
   {
@@ -93,7 +93,7 @@
     "usage": false,
     "condition": "%Protocol% == UNKNOWN",
     "action": "print",
-    "print_format": "[🛠️ alert]5️⃣ %Time% | %ContainerName% | UNKNOWN 프로토콜 탐지: SrcIp: %SrcIp% (%SrcIpLabel%) -> DstIp: %DstIp% (%DstIpLabel%) | PacketSize: %PacketSize% bytes | SrcPort: %SrcPort% | DstPort: %DstPort%",
+    "print_format": "[🛠️ alert]⑤ %Time% | %ContainerName% | UNKNOWN 프로토콜 탐지: SrcIp: %SrcIp% (%SrcIpLabel%) -> DstIp: %DstIp% (%DstIpLabel%) | PacketSize: %PacketSize% bytes | SrcPort: %SrcPort% | DstPort: %DstPort%",
     "time_conditions": null
   },
   {
@@ -102,7 +102,7 @@
     "usage": false,
     "condition": "%Direction% == incoming",
     "action": "print",
-    "print_format": "[ℹ️ Info]5️⃣ %Time% | %ContainerName% | Incoming traffic: %SrcIp% -> %DstIp% | Protocol: %Protocol% | PacketSize: %PacketSize% bytes",
+    "print_format": "[ℹ️ Info]⑤ %Time% | %ContainerName% | Incoming traffic: %SrcIp% -> %DstIp% | Protocol: %Protocol% | PacketSize: %PacketSize% bytes",
     "time_conditions": null
   },
   {
@@ -111,7 +111,7 @@
     "usage": false,
     "condition": "%Direction% == outgoing",
     "action": "print",
-    "print_format": "[ℹ️ Info]5️⃣ %Time% | %ContainerName% | Outgoing traffic: %SrcIp% -> %DstIp% | Protocol: %Protocol% | PacketSize: %PacketSize% bytes",
+    "print_format": "[ℹ️ Info]⑤ %Time% | %ContainerName% | Outgoing traffic: %SrcIp% -> %DstIp% | Protocol: %Protocol% | PacketSize: %PacketSize% bytes",
     "time_conditions": null
   },
   {
@@ -120,7 +120,7 @@
     "usage": true,
     "condition": "%DstPort% == 22",
     "action": "print alert",
-    "print_format": "[ℹ️ Info]5️⃣ %Time% | %ContainerName% | 비허용 포트 접근: SrcIp: %SrcIp% -> DstPort: %DstPort%",
+    "print_format": "[ℹ️ Info]⑤ %Time% | %ContainerName% | 비허용 포트 접근: SrcIp: %SrcIp% -> DstPort: %DstPort%",
     "time_conditions": null
   },
   {
@@ -129,7 +129,7 @@
     "usage": false,
     "condition": "%SrcIpLabel% () internal and %DstIpLabel% () internal",
     "action": "alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %ContainerName% | 컨테이너 간 비정상 통신 감지: %SrcIp% -> %DstIp% | Protocol: %Protocol% | PacketSize: %PacketSize% bytes",
+    "print_format": "[⚠️ warn]⑤ %Time% | %ContainerName% | 컨테이너 간 비정상 통신 감지: %SrcIp% -> %DstIp% | Protocol: %Protocol% | PacketSize: %PacketSize% bytes",
     "time_conditions": null
   },
   {
@@ -138,7 +138,7 @@
     "usage": true,
     "condition": "%Direction% == incoming and %Protocol% == UNKNOWN",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %ContainerName% | Unknown protocol detected: %SrcIp% -> %DstIp% | PacketSize: %PacketSize% bytes",
+    "print_format": "[⚠️ warn]⑤ %Time% | %ContainerName% | Unknown protocol detected: %SrcIp% -> %DstIp% | PacketSize: %PacketSize% bytes",
     "time_conditions": null
   },
   {
@@ -147,7 +147,7 @@
     "usage": true,
     "condition": "%Parameters% () {{ and %Parameters% () }}",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | SSTI 탐지-중괄호 기반 SSTI 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | SSTI 탐지-중괄호 기반 SSTI 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -156,7 +156,7 @@
     "usage": true,
     "condition": "%Parameters% () {% and %Parameters% () %}",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | SSTI 탐지-Jinja2 패턴 감지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | SSTI 탐지-Jinja2 패턴 감지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -165,7 +165,7 @@
     "usage": true,
     "condition": "%Parameters% () <%= and %Parameters% () %>",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | SSTI 탐지-ERB 패턴 감지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | SSTI 탐지-ERB 패턴 감지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -174,7 +174,7 @@
     "usage": true,
     "condition": "%Parameters% () ;",
     "action": "print alert",
-    "print_format": "[INFO]5️⃣ %Time% | %SrcIP% -> %DstIP% | 세미콜론 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[INFO]⑤ %Time% | %SrcIP% -> %DstIP% | 세미콜론 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -183,7 +183,7 @@
     "usage": true,
     "condition": "%Parameters% () &",
     "action": "print alert",
-    "print_format": "[INFO]5️⃣ %Time% | %SrcIP% -> %DstIP% | 앰퍼샌드 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[INFO]⑤ %Time% | %SrcIP% -> %DstIP% | 앰퍼샌드 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -192,7 +192,7 @@
     "usage": true,
     "condition": "%Parameters% () &&",
     "action": "print alert",
-    "print_format": "[INFO]5️⃣ %Time% | %SrcIP% -> %DstIP% | 더블 앰퍼샌드 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[INFO]⑤ %Time% | %SrcIP% -> %DstIP% | 더블 앰퍼샌드 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -201,7 +201,7 @@
     "usage": true,
     "condition": "%Parameters% () ls and %Parameters% () ;",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | Command Injection 탐지-ls 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | Command Injection 탐지-ls 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -210,7 +210,7 @@
     "usage": true,
     "condition": "%Parameters% () cat and %Parameters% () ;",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | Command Injection 탐지-cat 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | Command Injection 탐지-cat 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -219,7 +219,7 @@
     "usage": true,
     "condition": "%Parameters% () whoami and %Parameters% () ;",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | Command Injection 탐지-whoami 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | Command Injection 탐지-whoami 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -228,7 +228,7 @@
     "usage": true,
     "condition": "%Parameters% () |",
     "action": "print alert",
-    "print_format": "[INFO]5️⃣ %Time% | %SrcIP% -> %DstIP% | 파이프 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[INFO]⑤ %Time% | %SrcIP% -> %DstIP% | 파이프 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -237,7 +237,7 @@
     "usage": true,
     "condition": "%Parameters% () ||",
     "action": "print alert",
-    "print_format": "[INFO]5️⃣ %Time% | %SrcIP% -> %DstIP% | 더블 파이프 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[INFO]⑤ %Time% | %SrcIP% -> %DstIP% | 더블 파이프 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -246,7 +246,7 @@
     "usage": true,
     "condition": "%Parameters% () sudo and %Parameters% () ;",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | Command Injection 탐지-sudo 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | Command Injection 탐지-sudo 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -255,7 +255,7 @@
     "usage": true,
     "condition": "%Parameters% () rm and %Parameters% () ;",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | Command Injection 탐지-rm 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | Command Injection 탐지-rm 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -264,7 +264,7 @@
     "usage": true,
     "condition": "%Parameters% () OR and %Parameters% () = and %Parameters% () --",
     "action": "print alert",
-    "print_format": "[⚠️ warn] %Time% | %SrcIP% -> %DstIP% | 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -273,7 +273,7 @@
     "usage": true,
     "condition": "%Parameters% () or and %Parameters% () = and %Parameters% () --",
     "action": "print alert",
-    "print_format": "[⚠️ warn] %Time% | %SrcIP% -> %DstIP% | 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -282,7 +282,7 @@
     "usage": true,
     "condition": "%Parameters% () OR and %Parameters% () = and %Parameters% () #",
     "action": "print alert",
-    "print_format": "[⚠️ warn] %Time% | %SrcIP% -> %DstIP% | 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -291,7 +291,7 @@
     "usage": true,
     "condition": "%Parameters% () or and %Parameters% () = and %Parameters% () #",
     "action": "print alert",
-    "print_format": "[⚠️ warn] %Time% | %SrcIP% -> %DstIP% | 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -300,7 +300,7 @@
     "usage": true,
     "condition": "%Parameters% () OR and %Parameters% () = and %Parameters% () /*",
     "action": "print alert",
-    "print_format": "[⚠️ warn] %Time% | %SrcIP% -> %DstIP% | 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -309,7 +309,7 @@
     "usage": true,
     "condition": "%Parameters% () or and %Parameters% () = and %Parameters% () /*",
     "action": "print alert",
-    "print_format": "[⚠️ warn] %Time% | %SrcIP% -> %DstIP% | 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -318,7 +318,7 @@
     "usage": true,
     "condition": "%Parameters% () UNION and %Parameters% () SELECT",
     "action": "print alert",
-    "print_format": "[⚠️ warn] %Time% | %SrcIP% -> %DstIP% | URL=%URL% | UNION 키워드 탐지: Parameters=%Parameters%",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | URL=%URL% | UNION 키워드 탐지: Parameters=%Parameters%",
     "time_conditions": null
   },
   {
@@ -327,7 +327,7 @@
     "usage": true,
     "condition": "%Parameters% () UNION and %Parameters% () SELECT",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | URL=%URL% | SQL Injection 탐지-UNION 키워드 탐지: Parameters=%Parameters%",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | URL=%URL% | SQL Injection 탐지-UNION 키워드 탐지: Parameters=%Parameters%",
     "time_conditions": null
   },
   {
@@ -336,7 +336,7 @@
     "usage": true,
     "condition": "%Parameters% () ../",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-기본 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-기본 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -345,7 +345,7 @@
     "usage": true,
     "condition": "%Parameters% () ..\\",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-Windows 경로 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-Windows 경로 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -354,7 +354,7 @@
     "usage": true,
     "condition": "%Parameters% () ../ and %Parameters% () passwd",
     "action": "print alert",
-    "print_format": "[☢️ High]5️⃣ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-/etc/passwd 접근 시도: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[☢️ High]⑤ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-/etc/passwd 접근 시도: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -363,7 +363,7 @@
     "usage": true,
     "condition": "%Parameters% () ../ and %Parameters% () shadow",
     "action": "print alert",
-    "print_format": "[☢️ High]5️⃣ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-/etc/shadow 접근 시도: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[☢️ High]⑤ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-/etc/shadow 접근 시도: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -372,7 +372,7 @@
     "usage": true,
     "condition": "%Parameters% () ../ and %Parameters% () system32\\cmd.exe",
     "action": "print alert",
-    "print_format": "[🚨 Critical]5️⃣ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-CMD 접근 시도: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[🚨 Critical]⑤ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-CMD 접근 시도: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -381,7 +381,7 @@
     "usage": true,
     "condition": "%Parameters% () %2e%2e%2f",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-URL 인코딩(../) 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-URL 인코딩(../) 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -390,7 +390,7 @@
     "usage": true,
     "condition": "%Parameters% () %5c%5c",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-URL 인코딩(WIndows 경로) 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | Directory Traversal 탐지-URL 인코딩(WIndows 경로) 탐지: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -399,7 +399,7 @@
     "usage": true,
     "condition": "%Parameters% () <script and %Parameters% () </script>",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-스크립트 태그 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-스크립트 태그 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -408,7 +408,7 @@
     "usage": true,
     "condition": "%Parameters% () <img and %Parameters% () javascript:",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-이미지 태그 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-이미지 태그 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -417,7 +417,7 @@
     "usage": true,
     "condition": "%Parameters% () <iframe and %Parameters% () </iframe>",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-iframe 태그 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-iframe 태그 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -426,7 +426,7 @@
     "usage": true,
     "condition": "%Parameters% () background-image and %Parameters% () javascript:",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-CSS 배경 이미지 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-CSS 배경 이미지 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -435,7 +435,7 @@
     "usage": true,
     "condition": "%Parameters% () %3Cscript%3E and %Parameters% () %3C/script%3E",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-URL 인코딩 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-URL 인코딩 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -444,7 +444,7 @@
     "usage": true,
     "condition": "%Parameters% () Java&#97;script and %Parameters% () alert",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-유니코드 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-유니코드 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -453,7 +453,7 @@
     "usage": true,
     "condition": "%Parameters% () <embed and %Parameters% () </embed>",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-embed 태그 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-embed 태그 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
     "time_conditions": null
   },
   {
@@ -462,7 +462,7 @@
     "usage": true,
     "condition": "%URL% () .js",
     "action": "print alert",
-    "print_format": "[⚠️ warn]5️⃣ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-JavaScript 파일 접근: URL=%URL%",
+    "print_format": "[⚠️ warn]⑤ %Time% | %SrcIP% -> %DstIP% | XSS 탐지-JavaScript 파일 접근: URL=%URL%",
     "time_conditions": null
   }
 ]
