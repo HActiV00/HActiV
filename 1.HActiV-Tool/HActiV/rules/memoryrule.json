@@ -21,7 +21,7 @@
     "usage": false,
     "condition": "%Size% >= 0",
     "action": "print",
-    "print_format": "4️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | PPID: %Ppid% | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
+    "print_format": "④ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | Ppid: %Ppid% | ProcessName: %ProcessName% | Syscall: %Syscall% | StartAddr: %StartAddr% | EndAddr: %EndAddr% | Size(byte): %Size% | Prot: %Prot% | MappingType: %MappingType%",
     "time_conditions": null
   }
 ]
