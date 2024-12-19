@@ -2,7 +2,7 @@
 ](https://github.com/HActiV00/HActiV/tree/main/HActiV-Docker)
   1. 도구 설치
   ```bash
-  glt clone https://github.com/HActiV00/HActiV.git
+  git clone https://github.com/HActiV00/HActiV.git
   cd 1.HActiV-Tool
   ```
   2. 웹 & 도구 빌드
@@ -25,7 +25,7 @@
 
   1. 도구 설치
   ```bash
-  glt clone https://github.com/HActiV00/HActiV.git
+  git clone https://github.com/HActiV00/HActiV.git
   mv -f 2.HActiV-Agent(c)/* /1.HActiV-Tool
   cd 1.HActiV-Tool
   ```
@@ -50,7 +50,7 @@
   1. 도구 설치
 
   ```bash
-  glt clone https://github.com/HActiV00/HActiV.git
+  git clone https://github.com/HActiV00/HActiV.git
   mv -f 3.HActiV-Agent(H)/* 1.HActiV-Tool/
   cd 1.HActiV-Tool
   ```
@@ -167,7 +167,7 @@
 
   1. HActiV-Web 설치
   ```bash
-  glt clone https://github.com/HActiV00/HActiV.git
+  git clone https://github.com/HActiV00/HActiV.git
   mv -f 4.HActiV-Web/* 1.HActiV-Tool/
   cd 1.HActiV-Tool  
   ```
