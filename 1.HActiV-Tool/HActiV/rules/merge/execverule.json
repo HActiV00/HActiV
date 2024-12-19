@@ -1,0 +1,549 @@
+[
+  {
+    "event_name": "HactiV_exception",
+    "description": "HactiV 컨테이너 예외처리",
+    "usage": true,
+    "condition": "%ContainerName% () HActiV",
+    "action": "ignore",
+    "time_conditions": null
+  },
+  {
+    "event_name": "HactiV_exception",
+    "description": "HactiV 컨테이너 예외처리",
+    "usage": true,
+    "condition": "%ContainerName% () hactiv",
+    "action": "ignore",
+    "time_conditions": null
+  },
+  {
+    "event_name": "print_all_execve_event",
+    "description": "모든 execve 이벤트 출력",
+    "usage": true,
+    "condition": "%Uid% >= 0",
+    "action": "print",
+    "print_format": "2️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | PPid: %Ppid% | ProcessName: %ProcessName% | Filename: %Filename% | Args: %Args%",
+    "time_conditions": null
+  },
+  {
+    "event_name": "alert_on_root_execve",
+    "description": "루트 UID로 실행된 execve 이벤트에 대한 경고",
+    "usage": true,
+    "condition": "%Uid% == 0",
+    "action": "print",
+    "print_format": "[🔔 root]2️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | PPid: %Ppid% | Root Exec: %ProcessName% | Filename: %Filename% | Args: %Args%",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Unusual_shell_access",
+    "description": "쉘 실행 감지1-bash",
+    "usage": true,
+    "condition": "%Filename% () /bin/bash",
+    "action": "print",
+    "print_format": "[🛠️ alert]2️⃣ %Time% | %ContainerName% | Bash Exec Detected: %ProcessName% (%Filename%) (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Unusual_shell_access",
+    "description": "쉘 실행 감지2-zsh",
+    "usage": true,
+    "condition": "%Filename% () /bin/zsh",
+    "action": "print",
+    "print_format": "[🛠️ alert]2️⃣ %Time% | %ContainerName% | Zsh Exec Detected: %ProcessName% (%Filename%) (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Unusual_shell_access",
+    "description": "쉘 실행 감지3-sh",
+    "usage": true,
+    "condition": "%Filename% () /bin/sh",
+    "action": "print",
+    "print_format": "[🛠️ alert]2️⃣ %Time% | %ContainerName% | Sh Exec Detected: %ProcessName% (%Filename%) (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Potential_privilege_escalation",
+    "description": "권한 상승을 위한 의심 명령 실행",
+    "usage": true,
+    "condition": "%ProcessName% () sudo",
+    "action": "print",
+    "print_format": "[🔔 sudo]2️⃣ %Time% | %ContainerName% | 권한 상승 시도 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Create_privileged_container",
+    "description": "특권 컨테이너 생성",
+    "usage": true,
+    "condition": "%ProcessName% () bash and %Filename% () docker and %Args% () run and %Args% () --privileged",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 특권 컨테이너 생성: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Create_privileged_container",
+    "description": "특권 컨테이너 실행",
+    "usage": true,
+    "condition": "%ProcessName% () bash and %Filename% () docker and %Args% () start",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 특권 컨테이너 실행: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Create_privileged_container",
+    "description": "특권 컨테이너 접근",
+    "usage": true,
+    "condition": "%ProcessName% () bash and %Filename% () docker and %Args% () exec",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 특권 컨테이너 접근: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Suspicious_privilege_modification",
+    "description": "권한 상승 시도와 관련된 시스템 호출 탐지1-chmod",
+    "usage": true,
+    "condition": "%ProcessName% () chmod",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 권한 변경 시도: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Suspicious_privilege_modification",
+    "description": "권한 상승 시도와 관련된 시스템 호출 탐지2-chown",
+    "usage": true,
+    "condition": "%ProcessName% () chown",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 권한 변경 시도: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Suspicious_privilege_modification",
+    "description": "권한 상승 시도와 관련된 시스템 호출 탐지3-setuid",
+    "usage": true,
+    "condition": "%ProcessName% () setuid",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 권한 변경 시도: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Mount_host_filesystem",
+    "description": "호스트 파일 시스템을 마운트하려는 시도",
+    "usage": true,
+    "condition": "%Args% () docker and %Args% () /:/",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 호스트 파일 시스템 마운트 시도 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Download_git_clone",
+    "description": "git clone 파일 다운로드",
+    "usage": true,
+    "condition": "%Filename% () git and %Args% () clone",
+    "action": "print",
+    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | git clone 실행 감지: %ProcessName% (Filename: %Filename%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Download_wget",
+    "description": "wget 파일 다운로드",
+    "usage": true,
+    "condition": "%Filename% () wget",
+    "action": "print",
+    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | wget 실행 감지: %ProcessName% (Filename: %Filename%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "nmap",
+    "description": "nmap_실행_감지",
+    "usage": true,
+    "condition": "%Filename% () nmap",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | nmap 실행 감지: %ProcessName% (Filename: %Filename%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Potential_encryption_process_detected_gpg",
+    "description": "암호화 도구 실행 감지 (gpg)",
+    "usage": true,
+    "condition": "%Filename% () gpg",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 암호화 도구 실행 감지(gpg): %ProcessName% (%Filename%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Potential_encryption_process_detected_openssl",
+    "description": "암호화 도구 실행 감지 (openssl)",
+    "usage": true,
+    "condition": "%Filename% () openssl",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 암호화 도구 실행 감지(openssl): %ProcessName% (%Filename%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "System_time_modification",
+    "description": "시스템 타임스탬프 변경 시도 감지",
+    "usage": true,
+    "condition": "%Filename% () date and %Args% () -s",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 시스템 타임스탬프 변경 시도 감지: %ProcessName% (%Filename%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Disable_stack_protection&Allow_executable_stack",
+    "description": "스택 보호 기능 비활성화 및 실행 가능 스택 허용",
+    "usage": true,
+    "condition": "%ProcessName% == bash and %Filename% == /usr/bin/gcc and %Args% () -fno-stack-protector and %Args% () execstack",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%| PPid: %Ppid% | ProcessName: %ProcessName% | Filename: %Filename% | Args: %Args%",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SSTI_basic_detection",
+    "description": "서버 사이드 템플릿 인젝션의 기본 패턴 감지",
+    "usage": true,
+    "condition": "%Args% () {{ and %Args% () }}",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 기본 SSTI 패턴 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SSTI_Jinja_pattern_detection",
+    "description": "Jinja2 기반 템플릿 주입 패턴 감지",
+    "usage": true,
+    "condition": "%Args% () {% and %Args% () %}",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | SSTI 탐지-Jinja2 템플릿 주입 감지: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SSTI_ERB_pattern_detection",
+    "description": "ERB 기반 템플릿 주입 패턴 감지",
+    "usage": true,
+    "condition": "%Args% () <%= and %Args% () %>",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | SSTI 탐지-ERB 템플릿 주입 감지: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SSTI_command_execution",
+    "description": "SSTI를 이용한 시스템 명령 실행 감지 (os.system 사용)",
+    "usage": true,
+    "condition": "%Args% () os.system and %Args% () id",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | SSTI 탐지-시스템 명령 실행 감지: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SSTI_shell_command_execution",
+    "description": "SSTI를 이용한 쉘 명령 실행 감지 (subprocess 사용)",
+    "usage": true,
+    "condition": "%Args% () subprocess and %Args% () Popen",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | SSTI 탐지-쉘 명령 실행 감지: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SSTI_file_access_with_command_execution",
+    "description": "SSTI를 이용한 명령 실행과 민감 파일 접근 탐지",
+    "usage": true,
+    "condition": "%Args% () os.popen and %Args% () /etc/passwd",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | SSTI 탐지-명령 실행 및 민감 파일 접근: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_Detection",
+    "description": "세미콜론(;)을 사용한 명령어 주입 감지",
+    "usage": true,
+    "condition": "%Args% () ;",
+    "action": "print",
+    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | 세미콜론 명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Ampersand_Detection",
+    "description": "앰퍼센트(&)를 사용한 명령어 실행 감지",
+    "usage": true,
+    "condition": "%Args% () &",
+    "action": "print",
+    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | 앰퍼센트 명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Double_Ampersand_Detection",
+    "description": "더블 앰퍼센트(&&)를 사용한 명령어 실행 감지",
+    "usage": true,
+    "condition": "%Args% () &&",
+    "action": "print",
+    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | 더블 앰퍼센트 명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Pipe_Detection",
+    "description": "파이프(|)를 사용한 명령어 실행 감지",
+    "usage": true,
+    "condition": "%Args% () |",
+    "action": "print",
+    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | 파이프 명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Double_Pipe_Detection",
+    "description": "더블 파이프(||)를 사용한 명령어 실행 감지",
+    "usage": true,
+    "condition": "%Args% () ||",
+    "action": "print",
+    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | 더블 파이프 명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_with_Command_Detection",
+    "description": "세미콜론(;)과 시스템 명령어 결합 탐지",
+    "usage": true,
+    "condition": "%Args% () ls and %Args% () ; ",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Command Injection 탐지-명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_with_Command_Detection",
+    "description": "세미콜론(;)과 시스템 명령어 결합 탐지",
+    "usage": true,
+    "condition": "%Args% () cat and %Args% () ;",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Command Injection 탐지-명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_with_Command_Detection",
+    "description": "세미콜론(;)과 시스템 명령어 결합 탐지",
+    "usage": true,
+    "condition": "%Args% () whoami and %Args% () ;",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Command Injection 탐지-명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_with_Command_Detection",
+    "description": "세미콜론(;)과 시스템 명령어 결합 탐지",
+    "usage": true,
+    "condition": "%Args% () sudo and %Args% () ; ",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Command Injection 탐지-명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_with_Command_Detection",
+    "description": "세미콜론(;)과 시스템 명령어 결합 탐지",
+    "usage": true,
+    "condition": "%Args% () su and %Args% () ; ",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Command Injection 탐지-명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_with_Command_Detection",
+    "description": "세미콜론(;)과 시스템 명령어 결합 탐지",
+    "usage": true,
+    "condition": "%Args% () passwd and %Args% () ; ",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Command Injection 탐지-명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_with_Command_Detection",
+    "description": "세미콜론(;)과 시스템 명령어 결합 탐지",
+    "usage": true,
+    "condition": "%Args% () rm and %Args% () ; ",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Command Injection 탐지-명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SQL_Injection_OR 1=1_Detection",
+    "description": "' OR 1=1 -- 패턴을 이용한 SQL Injection 탐지",
+    "usage": true,
+    "condition": "%Args% () OR and %Args% () = and %Args% () --",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | SQL Injection 탐지-패턴 탐지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SQL_Injection_OR 1=1_Detection",
+    "description": "' OR 1=1 -- 패턴을 이용한 SQL Injection 탐지",
+    "usage": true,
+    "condition": "%Args% () or and %Args% () = and %Args% () --",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | SQL Injection 탐지-패턴 탐지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SQL_Injection_OR 1=1_Detection",
+    "description": "' OR 1=1 # 패턴을 이용한 SQL Injection 탐지",
+    "usage": true,
+    "condition": "%Args% () OR and %Args% () = and %Args% () #",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | SQL Injection 탐지-패턴 탐지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SQL_Injection_OR 1=1_Detection",
+    "description": "' OR 1=1 # 패턴을 이용한 SQL Injection 탐지",
+    "usage": true,
+    "condition": "%Args% () or and %Args% () = and %Args% () #",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | SQL Injection 탐지-패턴 탐지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SQL_Injection_OR 1=1_Detection",
+    "description": "' OR 1=1 /* 패턴을 이용한 SQL Injection 탐지",
+    "usage": true,
+    "condition": "%Args% () OR and %Args% () = and %Args% () /*",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | SQL Injection 탐지-패턴 탐지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SQL_Injection_OR 1=1_Detection",
+    "description": "' OR 1=1 #-/* 패턴을 이용한 SQL Injection 탐지",
+    "usage": true,
+    "condition": "%Args% () or and %Args% () = and %Args% () /*",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | SQL Injection 탐지-패턴 탐지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SQL_Injection_UNION_Detection",
+    "description": "UNION 키워드를 사용한 SQL Injection 탐지",
+    "usage": true,
+    "condition": "%Args% () UNION and %Args% () SELECT",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | SQL Injection 탐지-UNION 키워드 탐지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_traversal_detection-1.1",
+    "description": "디렉토리 트레버설 공격 감지",
+    "usage": true,
+    "condition": "%Filename% () ../",
+    "action": "print",
+    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | 경로 접근: %ProcessName% (%Filename%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_traversal_detection-1.2",
+    "description": "디렉토리 트레버설 공격 감지",
+    "usage": true,
+    "condition": "%Filename% () ../ and %Filename% () passwd ",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Directory Traversal 탐지-경로 접근: %ProcessName% (%Filename%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_traversal_detection-1.3",
+    "description": "디렉토리 트레버설 공격 감지",
+    "usage": true,
+    "condition": "%Filename% () ../ and %Filename% () shadow ",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Directory Traversal 탐지-경로 접근: %ProcessName% (%Filename%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_traversal_detection-1.4",
+    "description": "디렉토리 트레버설 공격 감지",
+    "usage": true,
+    "condition": "%Filename% () ../ and %Filename% () system32\\cmd.exe",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Directory Traversal 탐지-경로 접근: %ProcessName% (%Filename%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_traversal_detection-2",
+    "description": "디렉토리 트레버설 공격 감지",
+    "usage": true,
+    "condition": "%Filename% () ..\\",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Directory Traversal 탐지-경로 접근: %ProcessName% (%Filename%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_URL_Encoding_Detection-1",
+    "description": "URL 인코딩을 사용한 디렉토리 트레버설 탐지",
+    "usage": true,
+    "condition": "%Args% () %2e%2e%2f ",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Directory Traversal 탐지-URL 인코딩 탐지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_URL_Encoding_Detection-2",
+    "description": "URL 인코딩을 사용한 디렉토리 트레버설 탐지",
+    "usage": true,
+    "condition": "%Args% () %5c%5c",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Directory Traversal 탐지-URL 인코딩 탐지: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_detection",
+    "description": "XSS 공격 감지",
+    "usage": true,
+    "condition": "%Args% () <script> and %Args% () </script>",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | XSS 의심: %ProcessName% (Args: %Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_img_tag_detection",
+    "description": "이미지 태그를 이용한 XSS 감지",
+    "usage": true,
+    "condition": "%Args% () <img and %Args% () javascript:",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | XSS 탐지-이미지 태그 기반 XSS: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_background_image_detection",
+    "description": "CSS 배경 이미지를 이용한 XSS 감지",
+    "usage": true,
+    "condition": "%Args% () background-image and %Args% () javascript:",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | XSS 탐지-CSS 배경 이미지 기반 XSS: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_embed_tag_detection",
+    "description": "embed 태그를 이용한 XSS 감지",
+    "usage": true,
+    "condition": "%Args% () <embed> and %Args% () </embed>",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | XSS 탐지-embed 태그 기반 XSS: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_iframe_tag_detection",
+    "description": "iframe 태그를 이용한 XSS 감지",
+    "usage": true,
+    "condition": "%Args% () <iframe> and %Args% () </iframe>",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | XSS 탐지-iframe 태그 기반 XSS: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_encoding_obfuscation_detection",
+    "description": "URL 인코딩과 유니코드를 이용한 XSS 필터링 우회 탐지",
+    "usage": true,
+    "condition": "%Args% () %3Cscript%3E and %Args% () %3C/script%3E",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | XSS 탐지-URL 인코딩 기반 XSS: %ProcessName% (%Args%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_unicode_obfuscation_detection",
+    "description": "유니코드를 이용한 XSS 필터링 우회 탐지",
+    "usage": true,
+    "condition": "%Args% () Java&#97;script and %Args% () Java&#13;script",
+    "action": "print",
+    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | XSS 탐지-유니코드 기반 XSS: %ProcessName% (%Args%)",
+    "time_conditions": null
+  }
+]

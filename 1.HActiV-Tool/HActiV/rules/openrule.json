@@ -1,0 +1,27 @@
+[
+  {
+    "event_name": "HactiV_exception",
+    "description": "HactiV 컨테이너 예외처리",
+    "usage": true,
+    "condition": "%ContainerName% () HActiV",
+    "action": "ignore",
+    "time_conditions": null
+  },
+  {
+    "event_name": "HactiV_exception",
+    "description": "HactiV 컨테이너 예외처리",
+    "usage": true,
+    "condition": "%ContainerName% () hactiv",
+    "action": "ignore",
+    "time_conditions": null
+  },
+  {
+    "event_name": "print_all_open_event",
+    "description": "모든 open 이벤트 출력",
+    "usage": true,
+    "condition": "%Uid% >= 0",
+    "action": "print",
+    "print_format": "6️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | ProcessName: %ProcessName% | Filename: %Filename%",
+    "time_conditions": null
+  }
+]

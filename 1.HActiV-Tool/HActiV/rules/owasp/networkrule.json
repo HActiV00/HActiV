@@ -1,0 +1,335 @@
+[
+  {
+    "event_name": "SSTI_Basic_Detection",
+    "description": "중괄호 기반 서버 사이드 템플릿 인젝션 감지",
+    "usage": true,
+    "condition": "%Parameters% () {{ and %Parameters% () }}",
+    "action": "print",
+    "print_format": "[⚠️ SSTI 탐지] %Time% | %SrcIP% -> %DstIP% | 중괄호 기반 SSTI 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SSTI_Jinja_Pattern_Detection",
+    "description": "Jinja2 템플릿 주입 패턴 감지",
+    "usage": true,
+    "condition": "%Parameters% () {% and %Parameters% () %}",
+    "action": "print",
+    "print_format": "[⚠️ SSTI 탐지] %Time% | %SrcIP% -> %DstIP% | Jinja2 패턴 감지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SSTI_ERB_Pattern_Detection",
+    "description": "ERB 템플릿 주입 패턴 감지",
+    "usage": true,
+    "condition": "%Parameters% () <%= and %Parameters% () %>",
+    "action": "print",
+    "print_format": "[⚠️ SSTI 탐지] %Time% | %SrcIP% -> %DstIP% | ERB 패턴 감지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_Detection",
+    "description": "HTTP 요청에서 세미콜론(;) 사용 감지",
+    "usage": true,
+    "condition": "%Parameters% () ;",
+    "action": "print",
+    "print_format": "[INFO] %Time% | %SrcIP% -> %DstIP% | 세미콜론 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Ampersand_Detection",
+    "description": "HTTP 요청에서 앰퍼샌드(&) 사용 감지",
+    "usage": true,
+    "condition": "%Parameters% () &",
+    "action": "print",
+    "print_format": "[INFO] %Time% | %SrcIP% -> %DstIP% | 앰퍼샌드 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Double_Ampersand_Detection",
+    "description": "HTTP 요청에서 더블 앰퍼샌드(&&) 사용 감지",
+    "usage": true,
+    "condition": "%Parameters% () &&",
+    "action": "print",
+    "print_format": "[INFO] %Time% | %SrcIP% -> %DstIP% | 더블 앰퍼샌드 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_with_ls_Detection",
+    "description": "HTTP 요청에서 세미콜론과 `ls` 명령어 결합 탐지",
+    "usage": true,
+    "condition": "%Parameters% () ls and %Parameters% () ;",
+    "action": "print",
+    "print_format": "[⚠️ Command Injection 탐지] %Time% | %SrcIP% -> %DstIP% | ls 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_with_cat_Detection",
+    "description": "HTTP 요청에서 세미콜론과 `cat` 명령어 결합 탐지",
+    "usage": true,
+    "condition": "%Parameters% () cat and %Parameters% () ;",
+    "action": "print",
+    "print_format": "[⚠️ Command Injection 탐지] %Time% | %SrcIP% -> %DstIP% | cat 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_with_whoami_Detection",
+    "description": "HTTP 요청에서 세미콜론과 `whoami` 명령어 결합 탐지",
+    "usage": true,
+    "condition": "%Parameters% () whoami and %Parameters% () ;",
+    "action": "print",
+    "print_format": "[⚠️ Command Injection 탐지] %Time% | %SrcIP% -> %DstIP% | whoami 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Pipe_Detection",
+    "description": "HTTP 요청에서 파이프(|) 사용 감지",
+    "usage": true,
+    "condition": "%Parameters% () |",
+    "action": "print",
+    "print_format": "[INFO] %Time% | %SrcIP% -> %DstIP% | 파이프 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Double_Pipe_Detection",
+    "description": "HTTP 요청에서 더블 파이프(||) 사용 감지",
+    "usage": true,
+    "condition": "%Parameters% () ||",
+    "action": "print",
+    "print_format": "[INFO] %Time% | %SrcIP% -> %DstIP% | 더블 파이프 기반 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_with_sudo_Detection",
+    "description": "HTTP 요청에서 세미콜론과 `sudo` 명령어 결합 탐지",
+    "usage": true,
+    "condition": "%Parameters% () sudo and %Parameters% () ;",
+    "action": "print",
+    "print_format": "[⚠️ Command Injection 탐지] %Time% | %SrcIP% -> %DstIP% | sudo 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Command_Injection_Semi-colon_with_rm_Detection",
+    "description": "HTTP 요청에서 세미콜론과 `rm` 명령어 결합 탐지",
+    "usage": true,
+    "condition": "%Parameters% () rm and %Parameters% () ;",
+    "action": "print",
+    "print_format": "[⚠️ Command Injection 탐지] %Time% | %SrcIP% -> %DstIP% | rm 명령어 주입 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_Detection_-_Basic",
+    "description": "디렉토리 트레버설의 기본 패턴(../) 탐지",
+    "usage": true,
+    "condition": "%Parameters% () ../",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | 기본 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_Detection_-_Windows",
+    "description": "Windows 경로 탐지(디렉토리 트레버설 패턴: ..\\)",
+    "usage": true,
+    "condition": "%Parameters% () ..\\",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | Windows 경로 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_Sensitive_File_-_Passwd",
+    "description": "디렉토리 트레버설을 통한 /etc/passwd 접근 탐지",
+    "usage": true,
+    "condition": "%Parameters% () ../ and %Parameters% () passwd",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | /etc/passwd 접근 시도: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_Sensitive_File_-_Shadow",
+    "description": "디렉토리 트레버설을 통한 /etc/shadow 접근 탐지",
+    "usage": true,
+    "condition": "%Parameters% () ../ and %Parameters% () shadow",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | /etc/shadow 접근 시도: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_Sensitive_File_-_CMD",
+    "description": "디렉토리 트레버설을 통한 Windows system32\\cmd.exe 접근 탐지",
+    "usage": true,
+    "condition": "%Parameters% () ../ and %Parameters% () system32\\cmd.exe",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | CMD 접근 시도: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_URL_Encoding_-_../",
+    "description": "URL 인코딩을 사용한 ../ 패턴 탐지",
+    "usage": true,
+    "condition": "%Parameters% () %2e%2e%2f",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | URL 인코딩(../) 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_URL_Encoding_-_Windows",
+    "description": "URL 인코딩을 사용한 Windows 경로 탐지 (..\\)",
+    "usage": true,
+    "condition": "%Parameters% () %5c%5c",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | URL 인코딩(WIndows 경로) 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_PHP_File_Access",
+    "description": "디렉토리 트레버설을 통한 PHP 파일 접근 탐지",
+    "usage": true,
+    "condition": "%Parameters% () ../ and %Parameters% () .php",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | PHP 파일 접근 시도: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "SQL_Injection_UNION_Detection",
+    "description": "UNION 키워드를 사용한 SQL Injection 탐지",
+    "usage": true,
+    "condition": "%Parameters% () UNION and %Parameters% () SELECT",
+    "action": "print",
+    "print_format": "[⚠️ SQL Injection 탐지] %Time% | %SrcIP% -> %DstIP% | URL=%URL% | UNION 키워드 탐지: Parameters=%Parameters%",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_Detection_-_Basic",
+    "description": "디렉토리 트레버설의 기본 패턴(../) 탐지",
+    "usage": true,
+    "condition": "%Parameters% () ../",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | 기본 패턴 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_Detection_-_Windows",
+    "description": "Windows 경로 탐지(디렉토리 트레버설 패턴: ..\\)",
+    "usage": true,
+    "condition": "%Parameters% () ..\\",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | Windows 경로 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_Sensitive_File_-_Passwd",
+    "description": "디렉토리 트레버설을 통한 /etc/passwd 접근 탐지",
+    "usage": true,
+    "condition": "%Parameters% () ../ and %Parameters% () passwd",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | /etc/passwd 접근 시도: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_Sensitive_File_-_Shadow",
+    "description": "디렉토리 트레버설을 통한 /etc/shadow 접근 탐지",
+    "usage": true,
+    "condition": "%Parameters% () ../ and %Parameters% () shadow",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | /etc/shadow 접근 시도: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_Sensitive_File_-_CMD",
+    "description": "디렉토리 트레버설을 통한 Windows system32\\cmd.exe 접근 탐지",
+    "usage": true,
+    "condition": "%Parameters% () ../ and %Parameters% () system32\\cmd.exe",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | CMD 접근 시도: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_URL_Encoding_-_../",
+    "description": "URL 인코딩을 사용한 ../ 패턴 탐지",
+    "usage": true,
+    "condition": "%Parameters% () %2e%2e%2f",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | URL 인코딩(../) 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "Directory_Traversal_URL_Encoding_-_Windows",
+    "description": "URL 인코딩을 사용한 Windows 경로 탐지 (..\\)",
+    "usage": true,
+    "condition": "%Parameters% () %5c%5c",
+    "action": "print",
+    "print_format": "[⚠️ Directory Traversal 탐지] %Time% | %SrcIP% -> %DstIP% | URL 인코딩(WIndows 경로) 탐지: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_Script_Tag_Detection",
+    "description": "스크립트 태그를 이용한 XSS 감지",
+    "usage": true,
+    "condition": "%Parameters% () <script and %Parameters% () </script>",
+    "action": "print",
+    "print_format": "[⚠️ XSS 탐지] %Time% | %SrcIP% -> %DstIP% | 스크립트 태그 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_Img_Tag_Detection",
+    "description": "이미지 태그를 이용한 XSS 감지",
+    "usage": true,
+    "condition": "%Parameters% () <img and %Parameters% () javascript:",
+    "action": "print",
+    "print_format": "[⚠️ XSS 탐지] %Time% | %SrcIP% -> %DstIP% | 이미지 태그 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_Iframe_Tag_Detection",
+    "description": "iframe 태그를 이용한 XSS 감지",
+    "usage": true,
+    "condition": "%Parameters% () <iframe and %Parameters% () </iframe>",
+    "action": "print",
+    "print_format": "[⚠️ XSS 탐지] %Time% | %SrcIP% -> %DstIP% | iframe 태그 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_Background_Image_Detection",
+    "description": "CSS 배경 이미지를 이용한 XSS 감지",
+    "usage": true,
+    "condition": "%Parameters% () background-image and %Parameters% () javascript:",
+    "action": "print",
+    "print_format": "[⚠️ XSS 탐지] %Time% | %SrcIP% -> %DstIP% | CSS 배경 이미지 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_URL_Encoding_Detection",
+    "description": "URL 인코딩을 이용한 XSS 탐지",
+    "usage": true,
+    "condition": "%Parameters% () %3Cscript%3E and %Parameters% () %3C/script%3E",
+    "action": "print",
+    "print_format": "[⚠️ XSS 탐지] %Time% | %SrcIP% -> %DstIP% | URL 인코딩 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_Unicode_Obfuscation_Detection",
+    "description": "유니코드를 이용한 XSS 필터링 우회 탐지",
+    "usage": true,
+    "condition": "%Parameters% () Java&#97;script and %Parameters% () alert",
+    "action": "print",
+    "print_format": "[⚠️ XSS 탐지] %Time% | %SrcIP% -> %DstIP% | 유니코드 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "XSS_Embed_Tag_Detection",
+    "description": "embed 태그를 이용한 XSS 감지",
+    "usage": true,
+    "condition": "%Parameters% () <embed and %Parameters% () </embed>",
+    "action": "print",
+    "print_format": "[⚠️ XSS 탐지] %Time% | %SrcIP% -> %DstIP% | embed 태그 기반 XSS: URL=%URL% (Parameters=%Parameters%)",
+    "time_conditions": null
+  },
+  {
+    "event_name": "JavaScript_File_Access_Detection",
+    "description": "JavaScript 파일 접근 감지",
+    "usage": true,
+    "condition": "%URL% () .js",
+    "action": "print",
+    "print_format": "[⚠️ XSS 탐지] %Time% | %SrcIP% -> %DstIP% | JavaScript 파일 접근: URL=%URL%",
+    "time_conditions": null
+  }
+]
