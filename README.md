@@ -21,7 +21,7 @@
   ./HActiV {arg1} {arg2} {arg3} ... {arg4}
   ```
 
-[<h2> [[HActiV-Agent(컨테이너 에이전트 버전)] </h2>](https://github.com/HActiV00/HActiV/tree/main/HActiV_Agent(C))]
+[<h2> [HActiV-Agent(컨테이너 에이전트 버전)] </h2>](https://github.com/HActiV00/HActiV/tree/main/HActiV_Agent(C))
 
   1. 도구 설치
   ```bash
