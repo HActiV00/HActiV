@@ -24,7 +24,7 @@ https://github.com/user-attachments/assets/e825523a-5540-4646-a6d9-4df00f5df6cc
 
   4. 도구 실행
   ```bash
-  ./HActiV {arg1} {arg2} {arg3} ... {arg4}
+  ./HActiV {arg1} {arg2} {arg3} ... {argN}
   ```
 
 [<h2> 2.HActiV-Agent(컨테이너 에이전트 버전) </h2>](https://github.com/HActiV00/HActiV/tree/main/HActiV_Agent(C))
@@ -48,7 +48,7 @@ https://github.com/user-attachments/assets/e825523a-5540-4646-a6d9-4df00f5df6cc
 
   4. 도구 실행
   ```bash
-  ./HActiV {arg1} {arg2} {arg3} ... {arg4}
+  ./HActiV {arg1} {arg2} {arg3} ... {argN}
   ```
 
 [<h2> 3.HActiV-Agent(호스트 에이전트 버전)_(ubuntu 20.04/22.04/24.04) </h2>](https://github.com/HActiV00/HActiV/tree/main/HActiV_Agent(H))
@@ -134,7 +134,7 @@ https://github.com/user-attachments/assets/e825523a-5540-4646-a6d9-4df00f5df6cc
   
   8. HActiV Setting.json 설정
   
-  ```bash
+  ```json
   # HActiV 웹 url 사용 - Default (/etc/HActiV/Setting.json)
   
   {
@@ -149,7 +149,7 @@ https://github.com/user-attachments/assets/e825523a-5540-4646-a6d9-4df00f5df6cc
   }
   ```
 
-  ```bash
+  ```json
   # 호스트 웹 url 사용  (/etc/HActiV/Setting.json)
   
   {
@@ -166,7 +166,7 @@ https://github.com/user-attachments/assets/e825523a-5540-4646-a6d9-4df00f5df6cc
 
   9. HActiV 실행
   ```bash
-  ./HActiV {arg1} {arg2} {arg3} ... {arg4}
+  ./HActiV {arg1} {arg2} {arg3} ... {argN}
   ```
 
 [ <h2> 4.HActiV-Web(호스트 웹 버전) </h2> ](https://github.com/HActiV00/HActiV/tree/main/HActiV-Web)
