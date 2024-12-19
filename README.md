@@ -1,9 +1,9 @@
-<h2> [HActiV-Docker(컨테이너 통합 버전)] </h2>
-
+[<h2> [HActiV-Tool(컨테이너 통합 버전)] </h2>
+](https://github.com/HActiV00/HActiV/tree/main/HActiV-Docker)
   1. 도구 설치
   ```bash
   glt clone https://github.com/HActiV00/HActiV.git
-  cd HActiV
+  cd HActiV-Tool
   ```
   2. 웹 & 도구 빌드
   ```bash
@@ -21,6 +21,29 @@
   ./HActiV {arg1} {arg2} {arg3} ... {arg4}
   ```
 
+<h2> [[HActiV-Agent(컨테이너 에이전트 버전)]](https://github.com/HActiV00/HActiV/tree/main/HActiV_Agent(C)) </h2>
+
+  1. 도구 설치
+  ```bash
+  glt clone https://github.com/HActiV00/HActiV.git
+  cd HActiV-Agent(c)
+  mv -f * /HActiV-Tool
+  ```
+  2. 웹 & 도구 빌드
+  ```bash
+  docker-compose build
+  docker-compose up
+  ```
+
+  3. 도구 접속
+  ```bash
+  docker exec -it  HActiV /bin/bash
+  ```
+
+  4. 도구 실행
+  ```bash
+  ./HActiV {arg1} {arg2} {arg3} ... {arg4}
+  ```
 ## [HActiV-Host(ubuntu 20.04/22.04/24.04)]
 
   1. 도구 설치
@@ -140,29 +163,6 @@
   ```
 
   ##  [HActiV-Web(ubuntu 20.04/22.04/24.04)]
-
-  1. Docker 설치
-
-  ```bash
-  sudo apt-get update
-  sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  sudo apt-get update
-  sudo apt-get install -y docker-ce
-  ```
-
-  2. Docker compose 설치
-  ```bash
-  apt install docker-compose
-  ```
-
-  3. Docker 서비스 실행 및 상태 확인
-  ```bash
-  sudo systemctl start docker
-  sudo systemctl enable docker
-  sudo systemctl status docker
-  ```
 
   4. HActiV-web 빌드
   ```bash
