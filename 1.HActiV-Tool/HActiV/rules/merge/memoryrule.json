@@ -36,7 +36,7 @@
   {
     "event_name": "Executable_memory_mapping",
     "description": "실행 가능한 메모리 영역이 매핑된 경우 감지",
-    "usage": true,
+    "usage": false,
     "condition": "%Prot% () x",
     "action": "print alert",
     "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 실행 가능 메모리 매핑: %ProcessName% (Start: %StartAddr%, End: %EndAddr%)",
