@@ -16,6 +16,11 @@
   docker exec -it  HActiV /bin/bash
   ```
 
+  4. 도구 실행
+  ```bash
+  ./HActiV {arg1} {arg2} {arg3} ... {arg4}
+  ```
+
 ## [호스트(ubuntu 20.04/22.04/24.04) 사용의 경우]
 
   1. 도구 설치
@@ -108,7 +113,9 @@
     "LogLocation": "/etc/HActiV/logs",
     "Region": "Asia/Seoul",
     "RuleLocation": "/etc/HActiV/rules",
-    "Url": "https://hactiv-dev.run.goorm.site/api/dashboard"
+    "DataUrl": "https://hactiv-dev.run.goorm.site/api/dashboard/api/dashboard",
+    "DataSend": "True",
+    "RuleUrl": "https://hactiv-dev.run.goorm.site/api/dashboard/api/alert"
   }
   ```
 
@@ -121,7 +128,50 @@
     "LogLocation": "/etc/HActiV/logs",
     "Region": "Asia/Seoul",
     "RuleLocation": "/etc/HActiV/rules",
-    "Url": "https://hactiv-dev.run.goorm.site/api/dashboard"
+    "DataUrl": "http://hactiv-web-backend:8080/api/dashboard",
+    "DataSend": "True",
+    "RuleUrl": "http://hactiv-web-backend:8080/api/alert"
   }
   ```
-  1. HActiV 실행 테스트
+
+  9. HActiV 실행
+  ```bash
+  ./HActiV {arg1} {arg2} {arg3} ... {arg4}
+  ```
+
+  ##  [호스트(ubuntu 20.04/22.04/24.04) 웹 사용의 경우]
+
+  1. Docker 설치
+
+  ```bash
+  sudo apt-get update
+  sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  sudo apt-get update
+  sudo apt-get install -y docker-ce
+  ```
+
+  2. Docker compose 설치
+  ```bash
+  apt install docker-compose
+  ```
+
+  3. Docker 서비스 실행 및 상태 확인
+  ```bash
+  sudo systemctl start docker
+  sudo systemctl enable docker
+  sudo systemctl status docker
+  ```
+
+  4. HActiV-web 빌드
+  ```bash
+  docker-compose build
+  docker-compose up
+  ```
+
+  5. HActiV-web 접속
+  ```bash
+  - frontend (http://localhost:3000)
+  - backend (http://localhost:8080)
+  ```
