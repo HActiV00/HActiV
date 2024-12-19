@@ -21,7 +21,7 @@
     "usage": false,
     "condition": "%Uid% >= 0",
     "action": "print",
-    "print_format": "2️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | PPid: %Ppid% | ProcessName: %ProcessName% | Filename: %Filename% | Args: %Args%",
+    "print_format": "② %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | PPid: %Ppid% | ProcessName: %ProcessName% | Filename: %Filename% | Args: %Args%",
     "time_conditions": null
   }
 ]
