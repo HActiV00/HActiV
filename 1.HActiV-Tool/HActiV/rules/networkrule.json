@@ -21,7 +21,7 @@
     "usage": false,
     "condition": "%PacketSize% >= 0",
     "action": "print",
-    "print_format": "5️⃣ %Time% | %ContainerName% | SrcIp: %SrcIp% | SrcIpLabel: %SrcIpLabel% | DstIp: %DstIp% | DstIpLabel: %DstIpLabel% | Protocol: %Protocol% | Direction: %Direction% | PacketSize: %PacketSize% | PacketCount: %PacketCount% | TotalSize: %TotalSize% | Method: %Method% | Host: %Host% | URL: %URL% | Parameters: %Parameters%",
+    "print_format": "⑤ %Time% | %ContainerName% | SrcIp: %SrcIp% | SrcIpLabel: %SrcIpLabel% | DstIp: %DstIp% | DstIpLabel: %DstIpLabel% | Protocol: %Protocol% | Direction: %Direction% | PacketSize: %PacketSize% | SrcPort: %SrcPort% | DstPort: %DstPort%",
     "time_conditions": null
   }
 ]
