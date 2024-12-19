@@ -1,6 +1,6 @@
 [
   {
-    "event_name": "SSTI Basic Detection",
+    "event_name": "SSTI_Basic_Detection",
     "description": "중괄호 기반 서버 사이드 템플릿 인젝션 감지",
     "usage": true,
     "condition": "%Parameters% () {{ and %Parameters% () }}",
@@ -9,7 +9,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "SSTI Jinja Pattern Detection",
+    "event_name": "SSTI_Jinja_Pattern_Detection",
     "description": "Jinja2 템플릿 주입 패턴 감지",
     "usage": true,
     "condition": "%Parameters% () {% and %Parameters% () %}",
@@ -18,7 +18,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "SSTI ERB Pattern Detection",
+    "event_name": "SSTI_ERB_Pattern_Detection",
     "description": "ERB 템플릿 주입 패턴 감지",
     "usage": true,
     "condition": "%Parameters% () <%= and %Parameters% () %>",
@@ -27,7 +27,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Command Injection Semi-colon Detection",
+    "event_name": "Command_Injection_Semi-colon_Detection",
     "description": "HTTP 요청에서 세미콜론(;) 사용 감지",
     "usage": true,
     "condition": "%Parameters% () ;",
@@ -36,7 +36,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Command Injection Ampersand Detection",
+    "event_name": "Command_Injection_Ampersand_Detection",
     "description": "HTTP 요청에서 앰퍼샌드(&) 사용 감지",
     "usage": true,
     "condition": "%Parameters% () &",
@@ -45,7 +45,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Command Injection Double Ampersand Detection",
+    "event_name": "Command_Injection_Double_Ampersand_Detection",
     "description": "HTTP 요청에서 더블 앰퍼샌드(&&) 사용 감지",
     "usage": true,
     "condition": "%Parameters% () &&",
@@ -54,7 +54,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Command Injection Semi-colon with ls Detection",
+    "event_name": "Command_Injection_Semi-colon_with_ls_Detection",
     "description": "HTTP 요청에서 세미콜론과 `ls` 명령어 결합 탐지",
     "usage": true,
     "condition": "%Parameters% () ls and %Parameters% () ;",
@@ -63,7 +63,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Command Injection Semi-colon with cat Detection",
+    "event_name": "Command_Injection_Semi-colon_with_cat_Detection",
     "description": "HTTP 요청에서 세미콜론과 `cat` 명령어 결합 탐지",
     "usage": true,
     "condition": "%Parameters% () cat and %Parameters% () ;",
@@ -72,7 +72,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Command Injection Semi-colon with whoami Detection",
+    "event_name": "Command_Injection_Semi-colon_with_whoami_Detection",
     "description": "HTTP 요청에서 세미콜론과 `whoami` 명령어 결합 탐지",
     "usage": true,
     "condition": "%Parameters% () whoami and %Parameters% () ;",
@@ -81,7 +81,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Command Injection Pipe Detection",
+    "event_name": "Command_Injection_Pipe_Detection",
     "description": "HTTP 요청에서 파이프(|) 사용 감지",
     "usage": true,
     "condition": "%Parameters% () |",
@@ -90,7 +90,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Command Injection Double Pipe Detection",
+    "event_name": "Command_Injection_Double_Pipe_Detection",
     "description": "HTTP 요청에서 더블 파이프(||) 사용 감지",
     "usage": true,
     "condition": "%Parameters% () ||",
@@ -99,7 +99,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Command Injection Semi-colon with sudo Detection",
+    "event_name": "Command_Injection_Semi-colon_with_sudo_Detection",
     "description": "HTTP 요청에서 세미콜론과 `sudo` 명령어 결합 탐지",
     "usage": true,
     "condition": "%Parameters% () sudo and %Parameters% () ;",
@@ -108,7 +108,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Command Injection Semi-colon with rm Detection",
+    "event_name": "Command_Injection_Semi-colon_with_rm_Detection",
     "description": "HTTP 요청에서 세미콜론과 `rm` 명령어 결합 탐지",
     "usage": true,
     "condition": "%Parameters% () rm and %Parameters% () ;",
@@ -117,7 +117,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal Detection - Basic",
+    "event_name": "Directory_Traversal_Detection_-_Basic",
     "description": "디렉토리 트레버설의 기본 패턴(../) 탐지",
     "usage": true,
     "condition": "%Parameters% () ../",
@@ -126,7 +126,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal Detection - Windows",
+    "event_name": "Directory_Traversal_Detection_-_Windows",
     "description": "Windows 경로 탐지(디렉토리 트레버설 패턴: ..\\)",
     "usage": true,
     "condition": "%Parameters% () ..\\",
@@ -135,7 +135,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal Sensitive File - Passwd",
+    "event_name": "Directory_Traversal_Sensitive_File_-_Passwd",
     "description": "디렉토리 트레버설을 통한 /etc/passwd 접근 탐지",
     "usage": true,
     "condition": "%Parameters% () ../ and %Parameters% () passwd",
@@ -144,7 +144,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal Sensitive File - Shadow",
+    "event_name": "Directory_Traversal_Sensitive_File_-_Shadow",
     "description": "디렉토리 트레버설을 통한 /etc/shadow 접근 탐지",
     "usage": true,
     "condition": "%Parameters% () ../ and %Parameters% () shadow",
@@ -153,7 +153,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal Sensitive File - CMD",
+    "event_name": "Directory_Traversal_Sensitive_File_-_CMD",
     "description": "디렉토리 트레버설을 통한 Windows system32\\cmd.exe 접근 탐지",
     "usage": true,
     "condition": "%Parameters% () ../ and %Parameters% () system32\\cmd.exe",
@@ -162,7 +162,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal URL Encoding - ../",
+    "event_name": "Directory_Traversal_URL_Encoding_-_../",
     "description": "URL 인코딩을 사용한 ../ 패턴 탐지",
     "usage": true,
     "condition": "%Parameters% () %2e%2e%2f",
@@ -171,7 +171,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal URL Encoding - Windows",
+    "event_name": "Directory_Traversal_URL_Encoding_-_Windows",
     "description": "URL 인코딩을 사용한 Windows 경로 탐지 (..\\)",
     "usage": true,
     "condition": "%Parameters% () %5c%5c",
@@ -180,7 +180,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal PHP File Access",
+    "event_name": "Directory_Traversal_PHP_File_Access",
     "description": "디렉토리 트레버설을 통한 PHP 파일 접근 탐지",
     "usage": true,
     "condition": "%Parameters% () ../ and %Parameters% () .php",
@@ -189,7 +189,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "SQL Injection UNION Detection",
+    "event_name": "SQL_Injection_UNION_Detection",
     "description": "UNION 키워드를 사용한 SQL Injection 탐지",
     "usage": true,
     "condition": "%Parameters% () UNION and %Parameters% () SELECT",
@@ -198,7 +198,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal Detection - Basic",
+    "event_name": "Directory_Traversal_Detection_-_Basic",
     "description": "디렉토리 트레버설의 기본 패턴(../) 탐지",
     "usage": true,
     "condition": "%Parameters% () ../",
@@ -207,7 +207,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal Detection - Windows",
+    "event_name": "Directory_Traversal_Detection_-_Windows",
     "description": "Windows 경로 탐지(디렉토리 트레버설 패턴: ..\\)",
     "usage": true,
     "condition": "%Parameters% () ..\\",
@@ -216,7 +216,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal Sensitive File - Passwd",
+    "event_name": "Directory_Traversal_Sensitive_File_-_Passwd",
     "description": "디렉토리 트레버설을 통한 /etc/passwd 접근 탐지",
     "usage": true,
     "condition": "%Parameters% () ../ and %Parameters% () passwd",
@@ -225,7 +225,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal Sensitive File - Shadow",
+    "event_name": "Directory_Traversal_Sensitive_File_-_Shadow",
     "description": "디렉토리 트레버설을 통한 /etc/shadow 접근 탐지",
     "usage": true,
     "condition": "%Parameters% () ../ and %Parameters% () shadow",
@@ -234,7 +234,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal Sensitive File - CMD",
+    "event_name": "Directory_Traversal_Sensitive_File_-_CMD",
     "description": "디렉토리 트레버설을 통한 Windows system32\\cmd.exe 접근 탐지",
     "usage": true,
     "condition": "%Parameters% () ../ and %Parameters% () system32\\cmd.exe",
@@ -243,7 +243,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal URL Encoding - ../",
+    "event_name": "Directory_Traversal_URL_Encoding_-_../",
     "description": "URL 인코딩을 사용한 ../ 패턴 탐지",
     "usage": true,
     "condition": "%Parameters% () %2e%2e%2f",
@@ -252,7 +252,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "Directory Traversal URL Encoding - Windows",
+    "event_name": "Directory_Traversal_URL_Encoding_-_Windows",
     "description": "URL 인코딩을 사용한 Windows 경로 탐지 (..\\)",
     "usage": true,
     "condition": "%Parameters% () %5c%5c",
@@ -261,7 +261,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "XSS Script Tag Detection",
+    "event_name": "XSS_Script_Tag_Detection",
     "description": "스크립트 태그를 이용한 XSS 감지",
     "usage": true,
     "condition": "%Parameters% () <script and %Parameters% () </script>",
@@ -270,7 +270,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "XSS Img Tag Detection",
+    "event_name": "XSS_Img_Tag_Detection",
     "description": "이미지 태그를 이용한 XSS 감지",
     "usage": true,
     "condition": "%Parameters% () <img and %Parameters% () javascript:",
@@ -279,7 +279,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "XSS Iframe Tag Detection",
+    "event_name": "XSS_Iframe_Tag_Detection",
     "description": "iframe 태그를 이용한 XSS 감지",
     "usage": true,
     "condition": "%Parameters% () <iframe and %Parameters% () </iframe>",
@@ -288,7 +288,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "XSS Background Image Detection",
+    "event_name": "XSS_Background_Image_Detection",
     "description": "CSS 배경 이미지를 이용한 XSS 감지",
     "usage": true,
     "condition": "%Parameters% () background-image and %Parameters% () javascript:",
@@ -297,7 +297,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "XSS URL Encoding Detection",
+    "event_name": "XSS_URL_Encoding_Detection",
     "description": "URL 인코딩을 이용한 XSS 탐지",
     "usage": true,
     "condition": "%Parameters% () %3Cscript%3E and %Parameters% () %3C/script%3E",
@@ -306,7 +306,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "XSS Unicode Obfuscation Detection",
+    "event_name": "XSS_Unicode_Obfuscation_Detection",
     "description": "유니코드를 이용한 XSS 필터링 우회 탐지",
     "usage": true,
     "condition": "%Parameters% () Java&#97;script and %Parameters% () alert",
@@ -315,7 +315,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "XSS Embed Tag Detection",
+    "event_name": "XSS_Embed_Tag_Detection",
     "description": "embed 태그를 이용한 XSS 감지",
     "usage": true,
     "condition": "%Parameters% () <embed and %Parameters% () </embed>",
@@ -324,7 +324,7 @@
     "time_conditions": null
   },
   {
-    "event_name": "JavaScript File Access Detection",
+    "event_name": "JavaScript_File_Access_Detection",
     "description": "JavaScript 파일 접근 감지",
     "usage": true,
     "condition": "%URL% () .js",
