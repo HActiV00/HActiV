@@ -3,7 +3,7 @@
 
   //도구 설치
   
-  glt clonev https://github.com/HActiV00/HActiV.git
+  glt clone https://github.com/HActiV00/HActiV.git
   
   cd HActiV
 
