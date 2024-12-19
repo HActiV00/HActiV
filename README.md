@@ -1,4 +1,4 @@
-<h2> [docker container 사용의 경우] </h2>
+<h2> [HActiV-Docker(컨테이너 통합 버전)] </h2>
 
   1. 도구 설치
   ```bash
@@ -21,7 +21,7 @@
   ./HActiV {arg1} {arg2} {arg3} ... {arg4}
   ```
 
-## [호스트(ubuntu 20.04/22.04/24.04) 사용의 경우]
+## [HActiV-Host(ubuntu 20.04/22.04/24.04)]
 
   1. 도구 설치
 
@@ -139,7 +139,7 @@
   ./HActiV {arg1} {arg2} {arg3} ... {arg4}
   ```
 
-  ##  [호스트(ubuntu 20.04/22.04/24.04) 웹 사용의 경우]
+  ##  [HActiV-Web(ubuntu 20.04/22.04/24.04)]
 
   1. Docker 설치
 
