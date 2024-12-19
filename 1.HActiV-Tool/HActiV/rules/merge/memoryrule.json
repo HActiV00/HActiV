@@ -28,9 +28,9 @@
     "event_name": "1MB_over_memory_allocation",
     "description": "임계값 이상의 메모리 할당 탐지 (1MB 이상)",
     "usage": true,
-    "condition": "%Size% \u003e= 1048576",
+    "condition": "%Size% \u003e= 70000",
     "action": "print alert",
-    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 1MB 이상 메모리 할당: %ProcessName%, Size(byte): %Size%byte | Syscall: %Syscall%",
+    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 7MB 이상 메모리 할당: %ProcessName%, Size(byte): %Size%byte | Syscall: %Syscall%",
     "time_conditions": null
   },
   {
@@ -48,7 +48,7 @@
     "usage": true,
     "condition": "%Prot% () wx",
     "action": "print alert",
-    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 실행 가능한 메모리 쓰기 탐지: %ProcessName% | StartAddr: %StartAddr%, EndAddr: %EndAddr%",
+    "print_format": "[ℹ️ Info]4️⃣ %Time% | %ContainerName% | 실행 가능한 메모리 쓰기 탐지: %ProcessName% | StartAddr: %StartAddr%, EndAddr: %EndAddr%",
     "time_conditions": null
   },
   {
@@ -57,7 +57,7 @@
     "usage": true,
     "condition": "%MappingType% () Heap",
     "action": "print alert",
-    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 힙 메모리 매핑: %ProcessName% | Syscall: %Syscall% | 크기: %Size% 바이트",
+    "print_format": "[ℹ️ Info]4️⃣ %Time% | %ContainerName% | 힙 메모리 매핑: %ProcessName% | Syscall: %Syscall% | 크기: %Size% 바이트",
     "time_conditions": null
   },
   {
@@ -102,7 +102,7 @@
     "usage": true,
     "condition": "%MappingType% () Library",
     "action": "print alert",
-    "print_format": "[⚠️ warn]4️⃣ %Time% | %ContainerName% | 동적 라이브러리 로드: %ProcessName% | Library: %StartAddr% - %EndAddr%",
+    "print_format": "[ℹ️ Info]4️⃣ %Time% | %ContainerName% | 동적 라이브러리 로드: %ProcessName% | Library: %StartAddr% - %EndAddr%",
     "time_conditions": null
   },
   {
