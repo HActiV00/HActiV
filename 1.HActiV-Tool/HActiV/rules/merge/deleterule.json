@@ -21,7 +21,7 @@
     "usage": true,
     "condition": "%Uid% >= 0",
     "action": "print",
-    "print_format": "3️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | PPid: %PPid% | ProcessName: %ProcessName% | Filename: %Filename%",
+    "print_format": "③ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | PPid: %PPid% | ProcessName: %ProcessName% | Filename: %Filename%",
     "time_conditions": null
   },
   {
@@ -30,7 +30,7 @@
     "usage": true,
     "condition": "%Filename% () passwd",
     "action": "print alert ignore",
-    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[⚠️ warn]③ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   },
   {
@@ -39,7 +39,7 @@
     "usage": true,
     "condition": "%Filename% () /etc/passwd",
     "action": "print alert",
-    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[⚠️ warn]③ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   },
   {
@@ -48,7 +48,7 @@
     "usage": true,
     "condition": "%Filename% () shadow",
     "action": "print alert",
-    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[⚠️ warn]③ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   },
   {
@@ -57,7 +57,7 @@
     "usage": true,
     "condition": "%Filename% () /etc/shadow",
     "action": "print alert ignore",
-    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[⚠️ warn]③ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   },
   {
@@ -66,7 +66,7 @@
     "usage": true,
     "condition": "%Filename% () hosts",
     "action": "print alert",
-    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[⚠️ warn]③ %Time% | %ContainerName% | 중요한 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   },
   {
@@ -75,7 +75,7 @@
     "usage": true,
     "condition": "%Filename% () /var/log/",
     "action": "print alert ignore",
-    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 로그 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[⚠️ warn]③ %Time% | %ContainerName% | 로그 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   },
   {
@@ -84,7 +84,7 @@
     "usage": true,
     "condition": "%Filename% () .log",
     "action": "print alert",
-    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | 로그 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[⚠️ warn]③ %Time% | %ContainerName% | 로그 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   },
   {
@@ -93,7 +93,7 @@
     "usage": true,
     "condition": "%Filename% () /var/lib/docker",
     "action": "print alert",
-    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | Docker 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[⚠️ warn]③ %Time% | %ContainerName% | Docker 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   },
   {
@@ -102,7 +102,7 @@
     "usage": true,
     "condition": "%Filename% () /etc/hosts",
     "action": "print alert",
-    "print_format": "[⚠️ warn]3️⃣ %Time% | %ContainerName% | hosts 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[⚠️ warn]③ %Time% | %ContainerName% | hosts 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   },
   {
@@ -111,7 +111,7 @@
     "usage": true,
     "condition": "%Filename% () /root/.ssh/",
     "action": "print alert ignore",
-    "print_format": "[☢️ High]3️⃣ %Time% | %ContainerName% | SSH 키 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[☢️ High]③ %Time% | %ContainerName% | SSH 키 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   },
   {
@@ -120,7 +120,7 @@
     "usage": true,
     "condition": "%Filename% () authorized_keys",
     "action": "print alert",
-    "print_format": "[☢️ High]3️⃣ %Time% | %ContainerName% | SSH 키 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[☢️ High]③ %Time% | %ContainerName% | SSH 키 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   },
   {
@@ -129,7 +129,7 @@
     "usage": true,
     "condition": "%Filename% () /etc/resolv.conf",
     "action": "print alert ignore",
-    "print_format": "[☢️ High]3️⃣ %Time% | %ContainerName% | DNS 설정 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[☢️ High]③ %Time% | %ContainerName% | DNS 설정 파일 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   },
   {
@@ -138,7 +138,7 @@
     "usage": true,
     "condition": "%Filename% () /lib/modules/",
     "action": "print alert",
-    "print_format": "[🚨 Critical]3️⃣ %Time% | 호스트 시스템 | 커널 모듈 삭제 시도: %ProcessName%에서 %Filename% 삭제",
+    "print_format": "[🚨 Critical]③ %Time% | 호스트 시스템 | 커널 모듈 삭제 시도: %ProcessName%에서 %Filename% 삭제",
     "time_conditions": null
   }
 ]
