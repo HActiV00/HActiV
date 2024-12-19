@@ -62,7 +62,7 @@ func OpenMonitoring() {
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 	Losts := uint64(0)
 
-	logger, err := utils.NewDualLogger("open.log", "openjson.log")
+	logger, err := utils.NewDualLogger("open_compress", "openjson")
 	if err != nil {
 		fmt.Println("로그 생성 실패:", err)
 		return
