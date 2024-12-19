@@ -1,0 +1,29 @@
+version: '3'
+services:
+  hactiv:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: HActiV
+    privileged: true
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /sys/kernel:/sys/kernel:ro
+      - /proc:/proc
+    environment:
+      - BACKEND_URL=http://hactiv-web-backend:8080
+      - API_KEY=your-secret-api-key
+      - HOST_MONITORING=true
+      - LOG_LOCATION=/etc/HActiV/logs
+      - REGION=Asia/Seoul
+      - RULE_LOCATION=/etc/HActiV/rules
+      - DATA_SEND=true
+    command: sleep infinity
+    networks:
+      - hactiv-network
+
+networks:
+  hactiv-network:
+    driver: bridge

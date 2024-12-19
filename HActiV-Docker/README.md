@@ -3,7 +3,7 @@
   1. 도구 설치
   ```bash
   glt clone https://github.com/HActiV00/HActiV.git
-  cd HActiV
+  cd HActiV-Tool
   ```
   2. 웹 & 도구 빌드
   ```bash

@@ -1,0 +1,38 @@
+version: '3'
+services:
+  hactiv-web-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+      - mysql
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=hactiv_user
+      - DB_PASS=Gorxlqmdbwj11!@#
+      - DB_NAME=hactiv_dashboard
+    command: ["/bin/sh", "-c", "/wait-for-it.sh kafka 9092 && /wait-for-it.sh mysql 3306 && ./main"]
+    networks:
+      - hactiv-network
+
+  hactiv-web-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - hactiv-web-backend
+    environment:
+      - REACT_APP_API_URL=http://hactiv-web-backend:8080
+    networks:
+      - hactiv-network
+
+networks:
+  hactiv-network:
+    driver: bridge
