@@ -1,0 +1,19 @@
+# Dockerfile.frontend
+FROM node:20
+
+WORKDIR /app
+
+# netcat 설치
+RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
+
+COPY client/package*.json ./
+RUN npm install
+COPY client/ ./
+
+COPY wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
+
+EXPOSE 3000
+
+# 프론트엔드는 백엔드 서비스를 기다립니다
+CMD ["/wait-for-it.sh", "hactiv-web-backend", "8080", "npm", "start"]
