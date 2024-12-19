@@ -1,9 +1,10 @@
-<h2> [HActiV-Docker(컨테이너 통합 버전)] </h2>
+<h2> [HActiV-Agent(컨테이너 에이전트 버전)] </h2>
 
   1. 도구 설치
   ```bash
   glt clone https://github.com/HActiV00/HActiV.git
-  cd HActiV
+  cd HActiV-Agent(c)
+  mv -f * /HActiV-Tool
   ```
   2. 웹 & 도구 빌드
   ```bash
