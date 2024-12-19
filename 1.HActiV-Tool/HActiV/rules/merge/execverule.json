@@ -29,7 +29,7 @@
     "description": "루트 UID로 실행된 execve 이벤트에 대한 경고",
     "usage": true,
     "condition": "%Uid% == 0",
-    "action": "print",
+    "action": "print alert",
     "print_format": "[🔔 root]2️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid% | PPid: %Ppid% | Root Exec: %ProcessName% | Filename: %Filename% | Args: %Args%",
     "time_conditions": null
   },
@@ -38,7 +38,7 @@
     "description": "쉘 실행 감지1-bash",
     "usage": true,
     "condition": "%Filename% () /bin/bash",
-    "action": "print",
+    "action": "print alert",
     "print_format": "[🛠️ alert]2️⃣ %Time% | %ContainerName% | Bash Exec Detected: %ProcessName% (%Filename%) (Args: %Args%)",
     "time_conditions": null
   },
@@ -47,7 +47,7 @@
     "description": "쉘 실행 감지2-zsh",
     "usage": true,
     "condition": "%Filename% () /bin/zsh",
-    "action": "print",
+    "action": "print alert",
     "print_format": "[🛠️ alert]2️⃣ %Time% | %ContainerName% | Zsh Exec Detected: %ProcessName% (%Filename%) (Args: %Args%)",
     "time_conditions": null
   },
@@ -56,7 +56,7 @@
     "description": "쉘 실행 감지3-sh",
     "usage": true,
     "condition": "%Filename% () /bin/sh",
-    "action": "print",
+    "action": "print alert",
     "print_format": "[🛠️ alert]2️⃣ %Time% | %ContainerName% | Sh Exec Detected: %ProcessName% (%Filename%) (Args: %Args%)",
     "time_conditions": null
   },
@@ -65,7 +65,7 @@
     "description": "권한 상승을 위한 의심 명령 실행",
     "usage": true,
     "condition": "%ProcessName% () sudo",
-    "action": "print",
+    "action": "print alert",
     "print_format": "[🔔 sudo]2️⃣ %Time% | %ContainerName% | 권한 상승 시도 감지: %ProcessName% (Args: %Args%)",
     "time_conditions": null
   },
@@ -74,7 +74,7 @@
     "description": "특권 컨테이너 생성",
     "usage": true,
     "condition": "%ProcessName% () bash and %Filename% () docker and %Args% () run and %Args% () --privileged",
-    "action": "print",
+    "action": "print alert",
     "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 특권 컨테이너 생성: %ProcessName% (Args: %Args%)",
     "time_conditions": null
   },
@@ -83,7 +83,7 @@
     "description": "특권 컨테이너 실행",
     "usage": true,
     "condition": "%ProcessName% () bash and %Filename% () docker and %Args% () start",
-    "action": "print",
+    "action": "print alert",
     "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 특권 컨테이너 실행: %ProcessName% (Args: %Args%)",
     "time_conditions": null
   },
@@ -92,7 +92,7 @@
     "description": "특권 컨테이너 접근",
     "usage": true,
     "condition": "%ProcessName% () bash and %Filename% () docker and %Args% () exec",
-    "action": "print",
+    "action": "print alert",
     "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 특권 컨테이너 접근: %ProcessName% (Args: %Args%)",
     "time_conditions": null
   },
@@ -101,8 +101,8 @@
     "description": "권한 상승 시도와 관련된 시스템 호출 탐지1-chmod",
     "usage": true,
     "condition": "%ProcessName% () chmod",
-    "action": "print",
-    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 권한 변경 시도: %ProcessName% (%Args%)",
+    "action": "print alert",
+    "print_format": "[☢️ High]2️⃣ %Time% | %ContainerName% | 권한 변경 시도: %ProcessName% (%Args%)",
     "time_conditions": null
   },
   {
@@ -111,7 +111,7 @@
     "usage": true,
     "condition": "%ProcessName% () chown",
     "action": "print",
-    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 권한 변경 시도: %ProcessName% (%Args%)",
+    "print_format": "[☢️ High]2️⃣ %Time% | %ContainerName% | 권한 변경 시도: %ProcessName% (%Args%)",
     "time_conditions": null
   },
   {
@@ -120,7 +120,7 @@
     "usage": true,
     "condition": "%ProcessName% () setuid",
     "action": "print",
-    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 권한 변경 시도: %ProcessName% (%Args%)",
+    "print_format": "[☢️ High]2️⃣ %Time% | %ContainerName% | 권한 변경 시도: %ProcessName% (%Args%)",
     "time_conditions": null
   },
   {
@@ -129,7 +129,7 @@
     "usage": true,
     "condition": "%Args% () docker and %Args% () /:/",
     "action": "print",
-    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | 호스트 파일 시스템 마운트 시도 감지: %ProcessName% (Args: %Args%)",
+    "print_format": "[🚨 Critical]2️⃣ %Time% | %ContainerName% | 호스트 파일 시스템 마운트 시도 감지: %ProcessName% (Args: %Args%)",
     "time_conditions": null
   },
   {
@@ -138,7 +138,7 @@
     "usage": true,
     "condition": "%Filename% () git and %Args% () clone",
     "action": "print",
-    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | git clone 실행 감지: %ProcessName% (Filename: %Filename%)",
+    "print_format": "[ℹ️ Info]2️⃣ %Time% | %ContainerName% | git clone 실행 감지: %ProcessName% (Filename: %Filename%)",
     "time_conditions": null
   },
   {
@@ -147,7 +147,7 @@
     "usage": true,
     "condition": "%Filename% () wget",
     "action": "print",
-    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | wget 실행 감지: %ProcessName% (Filename: %Filename%)",
+    "print_format": "[ℹ️ Info]2️⃣ %Time% | %ContainerName% | wget 실행 감지: %ProcessName% (Filename: %Filename%)",
     "time_conditions": null
   },
   {
@@ -192,7 +192,7 @@
     "usage": true,
     "condition": "%ProcessName% == bash and %Filename% == /usr/bin/gcc and %Args% () -fno-stack-protector and %Args% () execstack",
     "action": "print",
-    "print_format": "[⚠️ warn]2️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%| PPid: %Ppid% | ProcessName: %ProcessName% | Filename: %Filename% | Args: %Args%",
+    "print_format": "[☢️ High]2️⃣ %Time% | %ContainerName% | Uid: %Uid% | Gid: %Gid% | Pid: %Pid%| PPid: %Ppid% | ProcessName: %ProcessName% | Filename: %Filename% | Args: %Args%",
     "time_conditions": null
   },
   {
@@ -255,7 +255,7 @@
     "usage": true,
     "condition": "%Args% () ;",
     "action": "print",
-    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | 세미콜론 명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "print_format": "[ℹ️ Info]2️⃣ %Time% | %ContainerName% | 세미콜론 명령어 주입 감지: %ProcessName% (Args: %Args%)",
     "time_conditions": null
   },
   {
@@ -264,7 +264,7 @@
     "usage": true,
     "condition": "%Args% () &",
     "action": "print",
-    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | 앰퍼센트 명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "print_format": "[ℹ️ Info]2️⃣ %Time% | %ContainerName% | 앰퍼센트 명령어 주입 감지: %ProcessName% (Args: %Args%)",
     "time_conditions": null
   },
   {
@@ -273,7 +273,7 @@
     "usage": true,
     "condition": "%Args% () &&",
     "action": "print",
-    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | 더블 앰퍼센트 명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "print_format": "[ℹ️ Info]2️⃣ %Time% | %ContainerName% | 더블 앰퍼센트 명령어 주입 감지: %ProcessName% (Args: %Args%)",
     "time_conditions": null
   },
   {
@@ -282,7 +282,7 @@
     "usage": true,
     "condition": "%Args% () |",
     "action": "print",
-    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | 파이프 명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "print_format": "[ℹ️ Info]2️⃣ %Time% | %ContainerName% | 파이프 명령어 주입 감지: %ProcessName% (Args: %Args%)",
     "time_conditions": null
   },
   {
@@ -291,7 +291,7 @@
     "usage": true,
     "condition": "%Args% () ||",
     "action": "print",
-    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | 더블 파이프 명령어 주입 감지: %ProcessName% (Args: %Args%)",
+    "print_format": "[ℹ️ Info]2️⃣ %Time% | %ContainerName% | 더블 파이프 명령어 주입 감지: %ProcessName% (Args: %Args%)",
     "time_conditions": null
   },
   {
@@ -426,7 +426,7 @@
     "usage": true,
     "condition": "%Filename% () ../",
     "action": "print",
-    "print_format": "[INFO]2️⃣ %Time% | %ContainerName% | 경로 접근: %ProcessName% (%Filename%)",
+    "print_format": "[ℹ️ Info]2️⃣ %Time% | %ContainerName% | 경로 접근: %ProcessName% (%Filename%)",
     "time_conditions": null
   },
   {
