@@ -133,7 +133,8 @@ https://github.com/user-attachments/assets/e825523a-5540-4646-a6d9-4df00f5df6cc
   ```
   
   8. HActiV Setting.json 설정
-  HActiV 웹 url 사용 - Default (/etc/HActiV/Setting.json)
+
+- HActiV 웹 url 사용 - Default (/etc/HActiV/Setting.json)
   ```json
   {
     "API": "your-secret-api-key",
@@ -147,7 +148,8 @@ https://github.com/user-attachments/assets/e825523a-5540-4646-a6d9-4df00f5df6cc
   }
   ```
 
-호스트 웹 url 사용  (/etc/HActiV/Setting.json)
+
+- 호스트 웹 url 사용  (/etc/HActiV/Setting.json)
   ```json
   {
     "API": "your-secret-api-key",
