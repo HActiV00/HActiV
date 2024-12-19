@@ -27,7 +27,7 @@
   {
     "event_name": "Unauthorized_SrcIP_access",
     "description": "허용되지 않은 SrcIP 접근 탐지",
-    "usage": true,
+    "usage": false,
     "condition": "%Direction% == incoming and %SrcIp% != 172.17.0.2",
     "action": "print alert",
     "print_format": "[⚠️ warn]5️⃣ %Time% | %ContainerName% | 허용되지 않은 SrcIP 접근 탐지: %SrcIp% -> %DstIp% | Protocol: %Protocol% | SrcPort: %SrcPort% | DstPort: %DstPort%",
