@@ -1,4 +1,4 @@
-[<h2> [1.HActiV-Tool(컨테이너 통합 버전)] </h2>
+[<h2> 1.HActiV-Tool(컨테이너 통합 버전) </h2>
 ](https://github.com/HActiV00/HActiV/tree/main/HActiV-Docker)
   1. 도구 설치
   ```bash
@@ -21,7 +21,7 @@
   ./HActiV {arg1} {arg2} {arg3} ... {arg4}
   ```
 
-[<h2> [2.HActiV-Agent(컨테이너 에이전트 버전)] </h2>](https://github.com/HActiV00/HActiV/tree/main/HActiV_Agent(C))
+[<h2> 2.HActiV-Agent(컨테이너 에이전트 버전) </h2>](https://github.com/HActiV00/HActiV/tree/main/HActiV_Agent(C))
 
   1. 도구 설치
   ```bash
@@ -45,7 +45,7 @@
   ./HActiV {arg1} {arg2} {arg3} ... {arg4}
   ```
 
-[<h2> [3.HActiV-Agent(호스트 에이전트 버전)_(ubuntu 20.04/22.04/24.04)] </h2>](https://github.com/HActiV00/HActiV/tree/main/HActiV_Agent(H))
+[<h2> 3.HActiV-Agent(호스트 에이전트 버전)_(ubuntu 20.04/22.04/24.04) </h2>](https://github.com/HActiV00/HActiV/tree/main/HActiV_Agent(H))
 
   1. 도구 설치
 
@@ -163,7 +163,7 @@
   ./HActiV {arg1} {arg2} {arg3} ... {arg4}
   ```
 
-[  ## [4.HActiV-Web(호스트 웹 버전)]](https://github.com/HActiV00/HActiV/tree/main/HActiV-Web)
+[ <h2> 4.HActiV-Web(호스트 웹 버전) </h2> ](https://github.com/HActiV00/HActiV/tree/main/HActiV-Web)
 
   1. HActiV-Web 설치
   ```bash
