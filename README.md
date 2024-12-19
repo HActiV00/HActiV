@@ -178,13 +178,13 @@ https://github.com/user-attachments/assets/e825523a-5540-4646-a6d9-4df00f5df6cc
   cd 1.HActiV-Tool  
   ```
 
-  2. HActiV-web 빌드
+  2. HActiV-Web 빌드
   ```bash
   docker-compose build
   docker-compose up
   ```
 
-  3. HActiV-web 접속
+  3. HActiV-Web 접속
   ```bash
   - frontend (http://localhost:3000)
   - backend (http://localhost:8080)
