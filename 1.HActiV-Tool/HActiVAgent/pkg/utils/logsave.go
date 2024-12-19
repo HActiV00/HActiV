@@ -25,7 +25,7 @@ type DualLogger struct {
 // execve -> Systemcall Datasend와 필드 일치를 위해해
 var ToolFields = map[string]string{
 	"Systemcall":      "Time ContainerName Uid Gid Pid Ppid Puid Pgid Filename ProcessName Args",
-	"open":            "Time ContainerName Uid Gid Pid Ppid Filename ProcessName",
+	"file_open":            "Time ContainerName Uid Gid Pid Ppid Filename ProcessName",
 	"delete":          "Time ContainerName Uid Gid Pid Ppid Filename ProcessName",
 	"Memory":          "Time ContainerName Uid Gid Pid Ppid  ProcessName Syscall StartAddr EndAddr Size Prottemp Prot MappingType",
 	"Network_traffic": "Time ContainerName SrcIp SrcIpLabel DstIp DstIpLabel Direction Protocol SrcPort DstPort PacketSize",
