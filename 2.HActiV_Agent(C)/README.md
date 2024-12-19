@@ -3,8 +3,8 @@
   1. 도구 설치
   ```bash
   glt clone https://github.com/HActiV00/HActiV.git
-  cd HActiV-Agent(c)
-  mv -f * /HActiV-Tool
+  mv -f 2.HActiV-Agent(c)/* /1.HActiV-Tool
+  cd 1.HActiV-Tool
   ```
   2. 웹 & 도구 빌드
   ```bash
