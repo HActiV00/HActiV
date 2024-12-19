@@ -1,9 +1,9 @@
-<h2> [HActiV-Agent(호스트 에이전트 버전)_(ubuntu 20.04/22.04/24.04)] </h2>
+[<h2> 3.HActiV-Agent(호스트 에이전트 버전)_(ubuntu 20.04/22.04/24.04) </h2>](https://github.com/HActiV00/HActiV/tree/main/HActiV_Agent(H))
 
   1. 도구 설치
 
   ```bash
-  glt clone https://github.com/HActiV00/HActiV.git
+  git clone https://github.com/HActiV00/HActiV.git
   mv -f 3.HActiV-Agent(H)/* 1.HActiV-Tool/
   cd 1.HActiV-Tool
   ```
@@ -79,11 +79,10 @@
   make
   ```
   
-  8. HActiV Setting.js 설정
-  
-  ```bash
-  # HActiV 웹 url 사용 - Default (/etc/HActiV/Setting.json)
-  
+  8. HActiV Setting.json 설정
+
+- HActiV 웹 url 사용 - Default (/etc/HActiV/Setting.json)
+  ```json
   {
     "API": "your-secret-api-key",
     "HostMonitoring": "true",
@@ -96,9 +95,9 @@
   }
   ```
 
-  ```bash
-  # 호스트 웹 url 사용  (/etc/HActiV/Setting.json)
-  
+
+- 호스트 웹 url 사용  (/etc/HActiV/Setting.json)
+  ```json
   {
     "API": "your-secret-api-key",
     "HostMonitoring": "true",
@@ -113,5 +112,5 @@
 
   9. HActiV 실행
   ```bash
-  ./HActiV {arg1} {arg2} {arg3} ... {arg4}
+  ./HActiV {arg1} {arg2} {arg3} ... {argN}
   ```
