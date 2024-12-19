@@ -132,7 +132,7 @@ https://github.com/user-attachments/assets/e825523a-5540-4646-a6d9-4df00f5df6cc
   make
   ```
   
-  8. HActiV Setting.js 설정
+  8. HActiV Setting.json 설정
   
   ```bash
   # HActiV 웹 url 사용 - Default (/etc/HActiV/Setting.json)
