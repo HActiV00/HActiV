@@ -1,4 +1,4 @@
-<- HActiV의 연구 보고서, 정책설정 가이드라인 등 문서는 https://github.com/HActiV00/Report.git 에서 확인 가능합니다.
+<- HActiV의 연구 보고서, 정책설정 가이드라인 등 문서는 추후 Report 레파지토리에 업로드됩니다.
 
 [<h2> 1.HActiV-Tool(컨테이너 통합 버전) </h2>
 ](https://github.com/HActiV00/HActiV/tree/main/HActiV-Docker)
