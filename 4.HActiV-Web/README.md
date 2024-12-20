@@ -1,4 +1,4 @@
-<h2> [HActiV-Web(호스트 웹 버전)] </h2>
+<h2> HActiV-Web(호스트 웹 버전) </h2>
 
   1. HActiV-Web 설치
   ```bash
